@@ -14,7 +14,6 @@
             position: fixed; top: 0; left: 0;
             display: flex; flex-direction: column;
         }
-        /* شريط التقدم */
         #progress-bar {
             padding: 20px 20px 10px;
             display: flex; align-items: center; gap: 10px;
@@ -28,7 +27,6 @@
             font-size: 18px; font-weight: 700; padding: 5px 20px 0;
             background: linear-gradient(135deg, #fff, #8e9aaf); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-        /* منطقة المحتوى */
         #content-area {
             flex: 1; padding: 10px 20px 5px; overflow-y: auto;
             display: flex; flex-direction: column;
@@ -72,7 +70,20 @@
         .checklist-item:last-child { border-bottom: none; }
         .check-icon { font-size: 22px; width: 30px; text-align: center; }
 
-        /* أزرار التنقل */
+        .action-row {
+            display: flex; gap: 12px; margin: 10px 0;
+        }
+        .action-btn {
+            padding: 14px 20px; border-radius: 60px; border: none; font-weight: 700; font-size: 16px;
+            cursor: pointer; transition: all 0.2s; flex: 1;
+        }
+        .action-btn:active { transform: scale(0.95); }
+        .btn-tare { background: #f59e0b; color: #1a2233; box-shadow: 0 4px 20px rgba(245, 158, 11, 0.3); }
+        .btn-tare:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .btn-success { background: #10b981; color: white; box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4); }
+        .btn-primary { background: #2563eb; color: white; box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4); }
+        .btn-secondary { background: #2d3748; color: #e2e8f0; border: 1px solid #4a5568; }
+
         #nav-buttons {
             padding: 15px 20px 25px;
             display: flex; gap: 12px; justify-content: space-between;
@@ -84,23 +95,23 @@
             display: flex; align-items: center; justify-content: center; gap: 8px;
         }
         .nav-btn:active { transform: scale(0.95); }
-        .btn-primary { background: #2563eb; color: white; box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4); }
-        .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-        .btn-secondary { background: #2d3748; color: #e2e8f0; border: 1px solid #4a5568; }
-        .btn-success { background: #10b981; color: white; box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4); }
-        .btn-warning { background: #f59e0b; color: #1a2233; box-shadow: 0 4px 20px rgba(245, 158, 11, 0.3); }
-        .btn-outline { background: transparent; color: #8e9aaf; border: 1px solid #3a4a5a; }
+        .nav-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
         #nav-back { flex: 0.5; } #nav-next { flex: 1.5; }
 
         .status-msg {
             text-align: center; font-size: 12px; color: #6a7a8e; padding: 6px;
             min-height: 30px; border-top: 1px solid rgba(255,255,255,0.03);
         }
+        .tare-done-badge {
+            background: #10b981; color: white; padding: 4px 12px; border-radius: 40px;
+            font-size: 12px; font-weight: 600; display: inline-block; margin: 5px 0;
+        }
 
         @media (max-width: 450px) {
             .angle-big { font-size: 50px; }
             .visual-helper { font-size: 50px; min-height: 80px; }
             .nav-btn { font-size: 14px; padding: 12px 16px; }
+            .action-btn { font-size: 14px; padding: 12px 16px; }
         }
     </style>
 </head>
@@ -113,7 +124,6 @@
     <div id="step-title">📋 تعليمات ما قبل البدء</div>
 
     <div id="content-area">
-        <!-- سيتم ملء المحتوى بواسطة JavaScript -->
         <div id="step-content"></div>
     </div>
 
@@ -137,16 +147,15 @@
                     { icon: '✅', text: 'تأكد من أن ضغط الإطارات مطابق للتوصيات.' },
                     { icon: '✅', text: 'أطفئ المحرك واشدد فرامل اليد.' },
                     { icon: '✅', text: 'جهز هاتفك (يفضل خلع الغطاء الواقي).' }
-                ],
-                action: { label: '🚀 بدء القياس', class: 'btn-success' }
+                ]
             },
             {
                 id: 'tare',
                 title: '🎯 الخطوة 1: معايرة الصفر (Tare)',
-                desc: 'ضع الهاتف مسطحاً على أرضية السيارة الداخلية (بجانب المقعد) أو على عتبة الباب المعدنية. ثم اضغط "معايرة الصفر" لتحديد مستوى الأرض.',
+                desc: 'ضع الهاتف مسطحاً على أرضية السيارة الداخلية (بجانب المقعد) أو على عتبة الباب المعدنية. ثم اضغط زر "معايرة الصفر" لتحديد مستوى الأرض.',
                 visual: '📱',
                 showAngle: true,
-                action: { label: '🎯 معايرة الصفر (Tare)', class: 'btn-warning' }
+                hasTareButton: true
             },
             {
                 id: 'fr',
@@ -154,7 +163,7 @@
                 desc: 'ضع الهاتف عمودياً على الجنط المعدني للعجلة الأمامية اليمنى (جهة الراكب). تأكد من التصاقه بالمعدن وعدم وجود أوساخ.',
                 visual: '↗️',
                 showAngle: true,
-                action: { label: '✅ تأكيد قراءة FR', class: 'btn-success' }
+                side: 'fr'
             },
             {
                 id: 'fl',
@@ -162,7 +171,7 @@
                 desc: 'ضع الهاتف عمودياً على الجنط المعدني للعجلة الأمامية اليسرى (جهة السائق). نفس الطريقة، تأكد من الاستقامة.',
                 visual: '↖️',
                 showAngle: true,
-                action: { label: '✅ تأكيد قراءة FL', class: 'btn-success' }
+                side: 'fl'
             },
             {
                 id: 'rr',
@@ -170,7 +179,7 @@
                 desc: 'للحصول على تقرير كامل، ضع الهاتف على الجنط الخلفي الأيمن. يمكنك تخطي هذه الخطوة إذا أردت.',
                 visual: '🔽',
                 showAngle: true,
-                action: { label: '✅ تأكيد قراءة RR', class: 'btn-success' }
+                side: 'rr'
             },
             {
                 id: 'rl',
@@ -178,15 +187,14 @@
                 desc: 'ضع الهاتف على الجنط الخلفي الأيسر. هذه آخر قراءة اختيارية.',
                 visual: '🔄',
                 showAngle: true,
-                action: { label: '✅ تأكيد قراءة RL', class: 'btn-success' }
+                side: 'rl'
             },
             {
                 id: 'report',
                 title: '📊 التقرير النهائي',
                 desc: 'إليك ملخص جميع القراءات المسجلة مع تقييم أولي لكل زاوية.',
                 visual: '📈',
-                isReport: true,
-                action: { label: '🔄 إعادة القياس', class: 'btn-secondary' }
+                isReport: true
             }
         ];
 
@@ -210,7 +218,8 @@
         // --- دوال مساعدة ---
         function getDisplayAngle() {
             const beta = rawBeta - tareOffset.beta;
-            return { beta, gamma: rawGamma - tareOffset.gamma };
+            const gamma = rawGamma - tareOffset.gamma;
+            return { beta, gamma };
         }
 
         function angleColor(angle) {
@@ -221,6 +230,7 @@
         }
 
         function formatAngle(angle) {
+            if (angle === null || angle === undefined) return '---';
             const sign = angle >= 0 ? '+' : '';
             return `${sign}${angle.toFixed(2)}°`;
         }
@@ -247,7 +257,7 @@
                 html += `<div class="visual-helper">${step.visual}</div>`;
             }
 
-            // عرض الزاوية (إذا كانت الخطوة تعرضها)
+            // عرض الزاوية
             if (step.showAngle) {
                 const { beta, gamma } = getDisplayAngle();
                 const color = angleColor(beta);
@@ -268,7 +278,19 @@
                 `;
             }
 
-            // قائمة التدقيق (للخطوة الأولى فقط)
+            // زر المعايرة (في خطوة Tare فقط)
+            if (step.hasTareButton) {
+                html += `
+                    <div class="action-row">
+                        <button class="action-btn btn-tare" id="tare-action-btn" ${tareDone ? 'disabled' : ''}>
+                            ${tareDone ? '✅ تمت المعايرة' : '🎯 معايرة الصفر (Tare)'}
+                        </button>
+                    </div>
+                    ${tareDone ? '<div style="text-align:center;"><span class="tare-done-badge">✅ تمت المعايرة بنجاح</span></div>' : ''}
+                `;
+            }
+
+            // قائمة التدقيق (للخطوة الأولى)
             if (step.checklist) {
                 html += `<div class="checklist">`;
                 step.checklist.forEach(item => {
@@ -281,18 +303,19 @@
             if (step.isReport) {
                 html += `<div class="checklist">`;
                 const reportData = [
-                    { label: 'العجلة الأمامية اليمنى (FR)', key: 'fr', defaultVal: 'لم تقاس' },
-                    { label: 'العجلة الأمامية اليسرى (FL)', key: 'fl', defaultVal: 'لم تقاس' },
-                    { label: 'العجلة الخلفية اليمنى (RR)', key: 'rr', defaultVal: 'لم تقاس' },
-                    { label: 'العجلة الخلفية اليسرى (RL)', key: 'rl', defaultVal: 'لم تقاس' }
+                    { label: 'العجلة الأمامية اليمنى (FR)', key: 'fr' },
+                    { label: 'العجلة الأمامية اليسرى (FL)', key: 'fl' },
+                    { label: 'العجلة الخلفية اليمنى (RR)', key: 'rr' },
+                    { label: 'العجلة الخلفية اليسرى (RL)', key: 'rl' }
                 ];
                 reportData.forEach(r => {
                     const val = readings[r.key];
-                    const display = val !== null ? formatAngle(val) + '°' : r.defaultVal;
+                    const display = val !== null ? formatAngle(val) : 'لم تقاس';
                     const color = val !== null ? angleColor(val) : '#6a7a8e';
+                    const icon = val !== null ? '✅' : '⬜';
                     html += `
                         <div class="checklist-item">
-                            <span class="check-icon">${val !== null ? '✅' : '⬜'}</span>
+                            <span class="check-icon">${icon}</span>
                             ${r.label}: <span style="color:${color};font-weight:bold;margin-right:auto;font-family:monospace;">${display}</span>
                         </div>
                     `;
@@ -305,71 +328,53 @@
                         ${diff < 0.8 ? ' ✅ ممتاز (الفرق ضمن الحد المسموح)' : ' ⚠️ يفضل مراجعة ميكانيكي (الفرق كبير)'}
                     </div>`;
                 }
+                if (readings.fr === null && readings.fl === null) {
+                    html += `<div class="step-description" style="border-right-color:#ef4444;text-align:center;">
+                        ⚠️ لم يتم تسجيل أي قراءة للعجلات الأمامية. أعد القياس من البداية.
+                    </div>`;
+                }
             }
 
             stepContent.innerHTML = html;
 
-            // تحديث زر الإجراء المخصص (إن وجد)
-            if (step.action) {
-                const actionBtn = document.getElementById('nav-next');
-                actionBtn.textContent = step.action.label;
-                actionBtn.className = `nav-btn ${step.action.class}`;
-                // إذا كانت الخطوة الأولى، نغير النص
-                if (index === 0) {
-                    actionBtn.textContent = '🚀 بدء القياس';
-                    actionBtn.className = 'nav-btn btn-success';
-                }
-                if (step.isReport) {
-                    actionBtn.textContent = '🔄 إعادة القياس';
-                    actionBtn.className = 'nav-btn btn-secondary';
+            // ربط أزرار المعايرة
+            if (step.hasTareButton) {
+                const tareBtn = document.getElementById('tare-action-btn');
+                if (tareBtn) {
+                    tareBtn.addEventListener('click', performTare);
                 }
             }
 
-            // إدارة أزرار التنقل
+            // تحديث أزرار التنقل
             navBack.style.display = index === 0 ? 'none' : 'flex';
-            // إذا كانت الخطوة الأولى، نعطي زر التالي دور "بدء"
-            if (index === 0) {
+            
+            // تحديث زر "التالي"
+            if (step.id === 'intro') {
                 navNext.textContent = '🚀 بدء القياس';
                 navNext.className = 'nav-btn btn-success';
+                navNext.disabled = false;
             } else if (step.isReport) {
                 navNext.textContent = '🔄 إعادة القياس';
                 navNext.className = 'nav-btn btn-secondary';
+                navNext.disabled = false;
+            } else if (step.id === 'tare') {
+                navNext.textContent = tareDone ? '✅ متابعة ➜' : '⏳ انتظر المعايرة...';
+                navNext.className = `nav-btn ${tareDone ? 'btn-primary' : 'btn-secondary'}`;
+                navNext.disabled = !tareDone;
             } else {
-                navNext.textContent = '✅ تأكيد ومتابعة';
-                navNext.className = 'nav-btn btn-primary';
+                // خطوات القياس
+                const side = step.side;
+                const isMeasured = side && readings[side] !== null;
+                navNext.textContent = isMeasured ? '✅ تم القياس، تابع ➜' : '📐 تأكيد القراءة';
+                navNext.className = `nav-btn ${isMeasured ? 'btn-success' : 'btn-primary'}`;
+                navNext.disabled = false;
             }
 
             // تحديث رسالة الحالة
             if (index === 0) statusMsg.textContent = '📖 اقرأ التعليمات جيداً قبل البدء';
-            else if (index === 1) statusMsg.textContent = '📱 ضع الهاتف على سطح مستوٍ ثم اضغط "معايرة الصفر"';
+            else if (step.id === 'tare') statusMsg.textContent = tareDone ? '✅ تمت المعايرة، انتقل للخطوة التالية.' : '📱 ضع الهاتف على سطح مستوٍ ثم اضغط "معايرة الصفر"';
             else if (step.showAngle) statusMsg.textContent = '📐 ضع الهاتف عمودياً على الجنط كما هو موضح';
             else statusMsg.textContent = '💡 اتبع الخطوات بالترتيب للحصول على أفضل النتائج';
-
-            // تحديث حالة الزر "التالي" بناءً على المعايرة
-            updateNextButtonState(index);
-        }
-
-        function updateNextButtonState(index) {
-            const step = steps[index];
-            if (!step) return;
-            // في خطوة المعايرة، نمنع الانتقال حتى تتم المعايرة
-            if (step.id === 'tare') {
-                navNext.disabled = !tareDone;
-                if (!tareDone) {
-                    navNext.textContent = '⏳ انتظر المعايرة...';
-                } else {
-                    navNext.textContent = '✅ تمت المعايرة، تابع ➜';
-                    navNext.className = 'nav-btn btn-success';
-                }
-            } else {
-                navNext.disabled = false;
-            }
-            // في التقرير النهائي، نمنع الانتقال لأنه آخر خطوة
-            if (step.isReport) {
-                navNext.textContent = '🔄 إعادة القياس';
-                navNext.className = 'nav-btn btn-secondary';
-                navNext.disabled = false;
-            }
         }
 
         // --- دوال المستشعرات ---
@@ -379,7 +384,10 @@
             rawGamma = event.gamma || 0;
             isSensorActive = true;
             // إعادة عرض الخطوة الحالية لتحديث الأرقام
-            renderStep(currentStep);
+            const currentStepObj = steps[currentStep];
+            if (currentStepObj && currentStepObj.showAngle) {
+                renderStep(currentStep);
+            }
         }
 
         function initSensors() {
@@ -412,7 +420,7 @@
             tareOffset.beta = rawBeta;
             tareOffset.gamma = rawGamma;
             tareDone = true;
-            statusMsg.textContent = '✅ تمت المعايرة بنجاح! يمكنك الانتقال للخطوة التالية.';
+            statusMsg.textContent = '✅ تمت المعايرة بنجاح! يمكنك الآن متابعة القياس.';
             renderStep(currentStep);
         }
 
@@ -420,13 +428,16 @@
             const { beta } = getDisplayAngle();
             readings[side] = beta;
             statusMsg.textContent = `✅ تم تسجيل قراءة ${side.toUpperCase()}: ${formatAngle(beta)}`;
-            // الانتقال للخطوة التالية تلقائياً بعد التأكيد
-            if (currentStep < steps.length - 1) {
-                setTimeout(() => { goToStep(currentStep + 1); }, 400);
-            }
+            renderStep(currentStep);
+            // الانتقال التلقائي بعد التأكيد
+            setTimeout(() => {
+                if (currentStep < steps.length - 1) {
+                    goToStep(currentStep + 1);
+                }
+            }, 500);
         }
 
-        // --- التنقل بين الخطوات ---
+        // --- التنقل ---
         function goToStep(index) {
             if (index < 0 || index >= steps.length) return;
             currentStep = index;
@@ -446,25 +457,21 @@
             // خطوة المعايرة
             if (step.id === 'tare') {
                 if (!tareDone) {
-                    performTare();
-                } else {
-                    goToStep(currentStep + 1);
+                    statusMsg.textContent = '⚠️ يجب معايرة الصفر أولاً بالضغط على الزر الموجود في منتصف الشاشة.';
+                    return;
                 }
+                goToStep(currentStep + 1);
                 return;
             }
 
-            // خطوات القياس (fr, fl, rr, rl)
+            // خطوات القياس
             if (['fr', 'fl', 'rr', 'rl'].includes(step.id)) {
-                const side = step.id;
+                const side = step.side;
                 if (readings[side] === null) {
-                    // إذا لم تؤكد القراءة، نطلب التأكيد أولاً
-                    const { beta } = getDisplayAngle();
-                    readings[side] = beta;
-                    statusMsg.textContent = `✅ تم تسجيل قراءة ${side.toUpperCase()}: ${formatAngle(beta)}`;
-                    setTimeout(() => {
-                        if (currentStep < steps.length - 1) goToStep(currentStep + 1);
-                    }, 300);
+                    // تأكيد القراءة الحالية
+                    confirmReading(side);
                 } else {
+                    // الانتقال للخطوة التالية إذا كانت القراءة مسجلة
                     if (currentStep < steps.length - 1) goToStep(currentStep + 1);
                 }
                 return;
@@ -484,8 +491,9 @@
 
         function handleBack() {
             if (currentStep > 0) {
-                // لا نسمح بالرجوع إلى خطوة المعايرة إذا كانت تمت
-                if (steps[currentStep - 1]?.id === 'tare' && tareDone) {
+                const prevStep = steps[currentStep - 1];
+                // لا نسمح بالرجوع إلى خطوة المعايرة إذا تمت
+                if (prevStep && prevStep.id === 'tare' && tareDone) {
                     statusMsg.textContent = '⚠️ لا يمكن الرجوع إلى خطوة المعايرة بعد إتمامها.';
                     return;
                 }
@@ -509,7 +517,7 @@
         initSensors();
         renderStep(0);
 
-        // محاولة تفعيل ملء الشاشة عند النقر
+        // تفعيل ملء الشاشة
         document.addEventListener('click', () => {
             try {
                 if (document.documentElement.requestFullscreen) {
@@ -520,7 +528,7 @@
             } catch (e) {}
         }, { once: true });
 
-        console.log('🚀 دليل معايرة السيارات التفاعلي جاهز!');
+        console.log('🚀 دليل معايرة السيارات التفاعلي (المصحح) جاهز!');
     })();
 </script>
 </body>
