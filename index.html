@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#0a0f1e" id="theme-color">
     <link rel="manifest" href="manifest.json">
-    <title>معايرة زوايا السيارة - دليل تفاعلي</title>
+    <title>معايرة زوايا السيارة - الخبير</title>
     <style>
         /* --- المتغيرات الأساسية --- */
         :root {
@@ -202,6 +202,28 @@
             background: #FF6B6B; color: white;
             box-shadow: 0 4px 20px rgba(255, 107, 107, 0.3);
         }
+        /* نافذة التحذير */
+        #custom-modal {
+            display: none;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            align-items: center; justify-content: center;
+        }
+        .modal-box {
+            background: var(--card-bg);
+            padding: 20px; border-radius: 20px;
+            max-width: 350px; text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .modal-title { font-size: 20px; font-weight: 800; margin-bottom: 10px; color: #FF6B6B; }
+        .modal-text { font-size: 15px; line-height: 1.6; margin-bottom: 20px; }
+        .modal-btn {
+            padding: 12px 20px; margin: 5px; border-radius: 40px;
+            font-weight: 700; border: none; cursor: pointer;
+        }
+        .btn-continue { background: #FF6B6B; color: white; }
+        .btn-cancel { background: var(--progress-bg); color: var(--text-secondary); }
 
         #nav-buttons {
             padding: 15px 20px 25px;
@@ -228,29 +250,6 @@
             border-top: 1px solid var(--border-color);
             transition: background 0.3s, color 0.3s;
         }
-
-        .tare-done-badge {
-            background: #10B981; color: white;
-            padding: 4px 12px; border-radius: 40px;
-            font-size: 12px; font-weight: 600;
-            display: inline-block;
-        }
-
-        .checklist {
-            background: var(--card-bg);
-            border-radius: 16px; padding: 12px 16px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 2px 8px var(--shadow-color);
-            transition: background 0.3s;
-        }
-        .checklist-item {
-            display: flex; align-items: center; gap: 12px;
-            padding: 8px 0;
-            border-bottom: 1px solid var(--border-color);
-            font-size: 14px; color: var(--text-secondary);
-        }
-        .checklist-item:last-child { border-bottom: none; }
-        .check-icon { font-size: 22px; width: 30px; text-align: center; }
 
         #theme-toggle {
             position: fixed; bottom: 90px; right: 15px;
@@ -315,6 +314,23 @@
             color: var(--text-secondary);
             margin-top: 2px;
         }
+        
+        /* --- CSS للرسم البياني --- */
+        .chart-container {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 15px;
+        }
+        .chart-title { font-weight: 800; margin-bottom: 10px; text-align: center; }
+        .bar-row {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 8px; font-size: 14px;
+        }
+        .bar-label { width: 70px; }
+        .bar-track { flex: 1; height: 14px; background: var(--progress-bg); border-radius: 7px; margin: 0 8px; overflow: hidden; position: relative; direction: ltr; }
+        .bar-fill { height: 100%; border-radius: 7px; transition: width 0.5s; }
 
         @media (max-width: 450px) {
             .angle-big { font-size: 50px; }
@@ -345,16 +361,25 @@
 
     <button id="theme-toggle">🌙</button>
 
+    <!-- نافذة التحذير -->
+    <div id="custom-modal">
+        <div class="modal-box">
+            <div class="modal-title">⚠️ تحذير: الأرض غير مستوية!</div>
+            <div class="modal-text">
+                <p>قراءة الأرض الحالية تشير إلى وجود ميل واضح. <strong>القياس على أرض غير مستوية سيعطي نتائج خاطئة</strong> في التقرير النهائي.</p>
+                <p>هل تريد إلغاء العملية والذهاب إلى أرض مستوية؟</p>
+            </div>
+            <button class="modal-btn btn-cancel" id="modal-cancel">إلغاء</button>
+            <button class="modal-btn btn-continue" id="modal-continue">أكمل على أي حال</button>
+        </div>
+    </div>
+
 <script>
     (function() {
         // --- بيانات الخطوات مع الرسوم التوضيحية ---
         const steps = [
-            {
-                id: 'intro',
-                title: '📋 تعليمات ما قبل البدء',
-                desc: 'اقرأ التعليمات جيداً، ثم اضغط "بدء القياس" للانتقال للخطوة التالية.',
-                visual: `
-┌─────────────────────────┐
+            { id: 'intro', title: '📋 تعليمات ما قبل البدء', desc: 'اقرأ التعليمات جيداً، ثم اضغط "بدء القياس" للانتقال للخطوة التالية.', 
+                visual: `┌─────────────────────────┐
 │  🛠️  تجهيز السيارة     │
 │                         │
 │  🚗 السيارة على أرض    │
@@ -370,12 +395,8 @@
                     { icon: '✅', text: 'جهز هاتفك (يفضل خلع الغطاء الواقي).' }
                 ]
             },
-            {
-                id: 'ground',
-                title: '🧭 الخطوة 1: قياس مستوى الأرض',
-                desc: 'ضع الهاتف على الأرض بجانب العجلة الأمامية اليمنى (كما في الصورة). اضغط "تسجيل" لتخزين القراءة.',
-                visual: `
-┌─────────────────────────────────┐
+            { id: 'ground', title: '🧭 الخطوة 1: قياس مستوى الأرض', desc: 'ضع الهاتف على الأرض بجانب العجلة الأمامية اليمنى. اضغط "تسجيل" لتخزين القراءة.', 
+                visual: `┌─────────────────────────────────┐
 │          ⚙️                     │
 │          ⚙️ (الجنط)            │
 │          ⚙️                     │
@@ -386,16 +407,10 @@
 │  🟫🟫🟫🟫🟫🟫🟫🟫🟫🟫🟫🟫  │
 │  🟫 (الأرض) 🟫                  │
 └─────────────────────────────────┘`,
-                showAngle: true,
-                hasRecordButton: true,
-                side: 'ground'
+                showAngle: true, hasRecordButton: true, side: 'ground'
             },
-            {
-                id: 'tare',
-                title: '🎯 الخطوة 2: معايرة الصفر (Tare)',
-                desc: 'ضع الهاتف مسطحاً على أرضية السيارة الداخلية (بجانب المقعد) كما في الصورة. ثم اضغط زر "معايرة الصفر".',
-                visual: `
-┌─────────────────────────────────┐
+            { id: 'tare', title: '🎯 الخطوة 2: معايرة الصفر (Tare)', desc: 'ضع الهاتف مسطحاً على أرضية السيارة الداخلية، ثم اضغط زر "معايرة الصفر".', 
+                visual: `┌─────────────────────────────────┐
 │  🪑 مقعد السيارة               │
 │  ┌────────────────────────┐    │
 │  │  🟫🟫🟫🟫🟫🟫🟫🟫🟫   │    │
@@ -405,15 +420,10 @@
 │  │  🟫🟫🟫🟫🟫🟫🟫🟫🟫   │    │
 │  └────────────────────────┘    │
 └─────────────────────────────────┘`,
-                showAngle: true,
-                hasTareButton: true
+                showAngle: true, hasTareButton: true
             },
-            {
-                id: 'fr',
-                title: '🚗 الخطوة 3: قياس العجلة الأمامية اليمنى (FR)',
-                desc: 'ضع الهاتف عمودياً على الجنط المعدني للعجلة الأمامية اليمنى (جهة الراكب). تأكد من استقامة الهاتف كما في الصورة.',
-                visual: `
-┌─────────────────────────────────┐
+            { id: 'fr', title: '🚗 الخطوة 3: قياس العجلة الأمامية اليمنى (FR)', desc: 'ضع الهاتف عمودياً على الجنط المعدني للعجلة الأمامية اليمنى.', 
+                visual: `┌─────────────────────────────────┐
 │         ⚙️                      │
 │         ⚙️ (الجنط)    ┌──┐    │
 │         ⚙️             │📱│    │
@@ -423,15 +433,10 @@
 │  🟫🟫🟫🟫🟫🟫🟫🟫🟫🟫🟫  │
 │  🟫 (الأرض) 🟫                  │
 └─────────────────────────────────┘`,
-                showAngle: true,
-                side: 'fr'
+                showAngle: true, side: 'fr'
             },
-            {
-                id: 'fl',
-                title: '🚗 الخطوة 4: قياس العجلة الأمامية اليسرى (FL)',
-                desc: 'ضع الهاتف عمودياً على الجنط المعدني للعجلة الأمامية اليسرى (جهة السائق). نفس الطريقة كما في الصورة.',
-                visual: `
-┌─────────────────────────────────┐
+            { id: 'fl', title: '🚗 الخطوة 4: قياس العجلة الأمامية اليسرى (FL)', desc: 'ضع الهاتف عمودياً على الجنط المعدني للعجلة الأمامية اليسرى.', 
+                visual: `┌─────────────────────────────────┐
 │         ⚙️                      │
 │         ⚙️ (الجنط)    ┌──┐    │
 │         ⚙️             │📱│    │
@@ -441,15 +446,10 @@
 │  🟫🟫🟫🟫🟫🟫🟫🟫🟫🟫🟫  │
 │  🟫 (الأرض) 🟫                  │
 └─────────────────────────────────┘`,
-                showAngle: true,
-                side: 'fl'
+                showAngle: true, side: 'fl'
             },
-            {
-                id: 'rr',
-                title: '🚙 الخطوة 5: قياس العجلة الخلفية اليمنى (RR) - اختياري',
-                desc: 'ضع الهاتف عمودياً على الجنط الخلفي الأيمن. يمكنك تخطي هذه الخطوة إذا أردت.',
-                visual: `
-┌─────────────────────────────────┐
+            { id: 'rr', title: '🚙 الخطوة 5: قياس العجلة الخلفية اليمنى (RR) - اختياري', desc: 'ضع الهاتف عمودياً على الجنط الخلفي الأيمن. يمكنك تخطي هذه الخطوة.', 
+                visual: `┌─────────────────────────────────┐
 │         ⚙️                      │
 │         ⚙️ (الجنط)    ┌──┐    │
 │         ⚙️             │📱│    │
@@ -459,15 +459,10 @@
 │  🟫🟫🟫🟫🟫🟫🟫🟫🟫🟫🟫  │
 │  🟫 (الأرض) 🟫                  │
 └─────────────────────────────────┘`,
-                showAngle: true,
-                side: 'rr'
+                showAngle: true, side: 'rr'
             },
-            {
-                id: 'rl',
-                title: '🚙 الخطوة 6: قياس العجلة الخلفية اليسرى (RL) - اختياري',
-                desc: 'ضع الهاتف عمودياً على الجنط الخلفي الأيسر. هذه آخر قراءة اختيارية.',
-                visual: `
-┌─────────────────────────────────┐
+            { id: 'rl', title: '🚙 الخطوة 6: قياس العجلة الخلفية اليسرى (RL) - اختياري', desc: 'ضع الهاتف عمودياً على الجنط الخلفي الأيسر.', 
+                visual: `┌─────────────────────────────────┐
 │         ⚙️                      │
 │         ⚙️ (الجنط)    ┌──┐    │
 │         ⚙️             │📱│    │
@@ -477,15 +472,10 @@
 │  🟫🟫🟫🟫🟫🟫🟫🟫🟫🟫🟫  │
 │  🟫 (الأرض) 🟫                  │
 └─────────────────────────────────┘`,
-                showAngle: true,
-                side: 'rl'
+                showAngle: true, side: 'rl'
             },
-            {
-                id: 'report',
-                title: '📊 التقرير النهائي',
-                desc: 'إليك ملخص جميع القراءات المسجلة مع تقييم أولي لكل زاوية.',
-                visual: `
-┌─────────────────────────┐
+            { id: 'report', title: '📊 التقرير النهائي', desc: 'إليك ملخص جميع القراءات المسجلة مع تقييم أولي لكل زاوية ورسوم بيانية توضيحية.', 
+                visual: `┌─────────────────────────┐
 │  📈  التقرير النهائي   │
 │                         │
 │  ✅ FR: +1.2° (ممتاز) │
@@ -504,6 +494,7 @@
         let rawBeta = 0, rawGamma = 0;
         let isSensorActive = false;
         let tareDone = false;
+        let floorWarningAccepted = false;
 
         // --- عناصر DOM ---
         const stepContent = document.getElementById('step-content');
@@ -514,6 +505,9 @@
         const navNext = document.getElementById('nav-next');
         const statusMsg = document.getElementById('status-msg');
         const themeToggle = document.getElementById('theme-toggle');
+        const customModal = document.getElementById('custom-modal');
+        const modalCancel = document.getElementById('modal-cancel');
+        const modalContinue = document.getElementById('modal-continue');
 
         // --- تبديل الوضع ---
         let isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -525,13 +519,8 @@
             document.getElementById('theme-color').content = isDarkMode ? '#0D0D0D' : '#F5F5F5';
         }
         themeToggle.addEventListener('click', toggleTheme);
-        if (isDarkMode) {
-            document.body.classList.add('dark-mode');
-            themeToggle.textContent = '☀️';
-        } else {
-            document.body.classList.add('light-mode');
-            themeToggle.textContent = '🌙';
-        }
+        if (isDarkMode) { document.body.classList.add('dark-mode'); themeToggle.textContent = '☀️'; }
+        else { document.body.classList.add('light-mode'); themeToggle.textContent = '🌙'; }
 
         // --- دوال مساعدة ---
         function getDisplayAngle() {
@@ -560,21 +549,39 @@
             const color = Math.abs(angle) < 0.5 ? '#10B981' : Math.abs(angle) < 1.5 ? '#FFB74D' : '#FF6B6B';
             return `
                 <div class="bubble-container">
-                    <div class="bubble-header">
-                        <span>${label}</span>
-                        <span style="color:${color};font-weight:bold;font-family:monospace;">${formatAngle(angle)}</span>
-                    </div>
-                    <div class="bubble-track">
-                        <div class="bubble-fill" style="width:${clamped}%;background:${color};"></div>
-                        <div class="bubble-marker"></div>
-                    </div>
-                    <div class="bubble-labels">
-                        <span>− (مائل)</span>
-                        <span>0 (مستوي)</span>
-                        <span>+ (مائل)</span>
-                    </div>
+                    <div class="bubble-header"><span>${label}</span><span style="color:${color};font-weight:bold;font-family:monospace;">${formatAngle(angle)}</span></div>
+                    <div class="bubble-track"><div class="bubble-fill" style="width:${clamped}%;background:${color};"></div><div class="bubble-marker"></div></div>
+                    <div class="bubble-labels"><span>− (مائل)</span><span>0 (مستوي)</span><span>+ (مائل)</span></div>
                 </div>
             `;
+        }
+
+        // --- دالة رسم الرسم البياني للتقارير ---
+        function renderChart(data, warningMessage) {
+            let html = `<div class="chart-container"><div class="chart-title">📊 مقارنة الزوايا</div>`;
+            data.forEach(r => {
+                const val = r.value !== null ? r.value : 0;
+                const maxAbs = 5;
+                const width = Math.min(100, (Math.abs(val) / maxAbs) * 100);
+                const color = angleColor(val);
+                const label = r.label;
+                html += `
+                    <div class="bar-row">
+                        <div class="bar-label">${label}</div>
+                        <div class="bar-track"><div class="bar-fill" style="width:${width}%;background:${color};"></div></div>
+                        <div style="width:60px;text-align:center;font-family:monospace;">${formatAngle(r.value)}</div>
+                    </div>
+                `;
+            });
+            html += `</div>`;
+            
+            // إضافة تفصيلة عدم الاستواء إذا وافق المستخدم
+            if (warningMessage) {
+                html += `<div class="step-description" style="border-right-color:#FF6B6B;background:#FFE5E5;color:#c0392b;font-size:14px;">
+                    <strong>⚠️ تنبيه مهم:</strong> ${warningMessage}
+                </div>`;
+            }
+            return html;
         }
 
         // --- عرض الخطوة الحالية ---
@@ -588,12 +595,9 @@
             stepTitle.textContent = step.title;
 
             let html = '';
-
             html += `<div class="step-description">${step.desc}</div>`;
 
-            if (step.visual) {
-                html += `<div class="visual-helper">${step.visual}</div>`;
-            }
+            if (step.visual) html += `<div class="visual-helper">${step.visual}</div>`;
 
             // --- ميزان المياه في خطوة قياس الأرض ---
             if (step.id === 'ground') {
@@ -606,22 +610,13 @@
                 const { beta, gamma } = getDisplayAngle();
                 const color = angleColor(beta);
                 html += `
-                    <div class="angle-big" style="color:${color}">
-                        ${formatAngle(beta)}<span class="angle-deg">°</span>
-                    </div>
+                    <div class="angle-big" style="color:${color}">${formatAngle(beta)}<span class="angle-deg">°</span></div>
                     <div class="sub-reading">
-                        <div class="sub-card">
-                            <div class="sub-label">📐 الميلان الجانبي (Camber)</div>
-                            <div class="sub-value value-beta">${formatAngle(beta)}</div>
-                        </div>
-                        <div class="sub-card">
-                            <div class="sub-label">📏 الميلان الأمامي (Caster)</div>
-                            <div class="sub-value value-gamma">${formatAngle(gamma)}</div>
-                        </div>
+                        <div class="sub-card"><div class="sub-label">📐 الميلان الجانبي (Camber)</div><div class="sub-value value-beta">${formatAngle(beta)}</div></div>
+                        <div class="sub-card"><div class="sub-label">📏 الميلان الأمامي (Caster)</div><div class="sub-value value-gamma">${formatAngle(gamma)}</div></div>
                     </div>
                 `;
 
-                // --- ميزان المياه الصغير في خطوات الجنوط ---
                 if (['fr', 'fl', 'rr', 'rl'].includes(step.id)) {
                     html += renderLevelBubble(gamma, '📐 عمودية الهاتف على الجنط');
                 }
@@ -631,11 +626,7 @@
             if (step.hasRecordButton) {
                 const isRecorded = readings.ground !== null;
                 html += `
-                    <div class="action-row">
-                        <button class="action-btn btn-record" id="record-btn">
-                            ${isRecorded ? '✅ تم التسجيل' : '📝 تسجيل قراءة الأرض'}
-                        </button>
-                    </div>
+                    <div class="action-row"><button class="action-btn btn-record" id="record-btn">${isRecorded ? '✅ تم التسجيل' : '📝 تسجيل قراءة الأرض'}</button></div>
                     ${isRecorded ? `<div style="text-align:center;color:#10B981;font-weight:bold;">✅ تم تسجيل: ${formatAngle(readings.ground)}</div>` : ''}
                 `;
             }
@@ -643,44 +634,49 @@
             // زر المعايرة
             if (step.hasTareButton) {
                 html += `
-                    <div class="action-row">
-                        <button class="action-btn btn-tare" id="tare-action-btn" ${tareDone ? 'disabled' : ''}>
-                            ${tareDone ? '✅ تمت المعايرة' : '🎯 معايرة الصفر (Tare)'}
-                        </button>
-                    </div>
-                    ${tareDone ? '<div style="text-align:center;"><span class="tare-done-badge">✅ تمت المعايرة بنجاح</span></div>' : ''}
+                    <div class="action-row"><button class="action-btn btn-tare" id="tare-action-btn" ${tareDone ? 'disabled' : ''}>${tareDone ? '✅ تمت المعايرة' : '🎯 معايرة الصفر (Tare)'}</button></div>
+                    ${tareDone ? '<div style="text-align:center;"><span class="tare-done-badge" style="background:#10B981;color:white;padding:4px 12px;border-radius:40px;font-size:12px;">✅ تمت المعايرة بنجاح</span></div>' : ''}
                 `;
             }
 
             if (step.checklist) {
-                html += `<div class="checklist">`;
+                html += `<div class="checklist" style="background:var(--card-bg);border-radius:16px;padding:12px 16px;border:1px solid var(--border-color);">`;
                 step.checklist.forEach(item => {
-                    html += `<div class="checklist-item"><span class="check-icon">${item.icon}</span> ${item.text}</div>`;
+                    html += `<div class="checklist-item" style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-color);font-size:14px;"><span style="font-size:22px;width:30px;text-align:center;">${item.icon}</span> ${item.text}</div>`;
                 });
                 html += `</div>`;
             }
 
             if (step.isReport) {
-                html += `<div class="checklist">`;
+                // تجهيز بيانات التقرير والرسم البياني
                 const reportData = [
-                    { label: 'العجلة الأمامية اليمنى (FR)', key: 'fr' },
-                    { label: 'العجلة الأمامية اليسرى (FL)', key: 'fl' },
-                    { label: 'العجلة الخلفية اليمنى (RR)', key: 'rr' },
-                    { label: 'العجلة الخلفية اليسرى (RL)', key: 'rl' }
+                    { label: 'الأمامية اليمنى (FR)', key: 'fr' },
+                    { label: 'الأمامية اليسرى (FL)', key: 'fl' },
+                    { label: 'الخلفية اليمنى (RR)', key: 'rr' },
+                    { label: 'الخلفية اليسرى (RL)', key: 'rl' }
                 ];
+                
+                let warningMsg = null;
+                if (floorWarningAccepted) {
+                    warningMsg = "تم بدء عملية القياس على سطح غير مستوٍ. قد تحتوي البيانات المسجلة على هامش خطأ، ويُنصح بإعادة المعايرة على سطح مستوٍ لضمان دقة النتائج النهائية.";
+                }
+
+                html += renderChart(reportData.map(r => ({ label: r.label, value: readings[r.key] })), warningMsg);
+                
+                // التفاصيل النصية
+                html += `<div class="checklist" style="background:var(--card-bg);border-radius:16px;padding:12px 16px;border:1px solid var(--border-color);">`;
                 reportData.forEach(r => {
                     const val = readings[r.key];
                     const display = val !== null ? formatAngle(val) : 'لم تقاس';
                     const color = val !== null ? angleColor(val) : '#6a7a8e';
                     const icon = val !== null ? (Math.abs(val) < 1.5 ? '✅' : Math.abs(val) < 2.5 ? '⚠️' : '🔴') : '⬜';
-                    html += `
-                        <div class="checklist-item">
-                            <span class="check-icon">${icon}</span>
-                            ${r.label}: <span style="color:${color};font-weight:bold;margin-right:auto;font-family:monospace;">${display}</span>
-                        </div>
-                    `;
+                    html += `<div class="checklist-item" style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-color);font-size:14px;">
+                        <span style="font-size:22px;width:30px;text-align:center;">${icon}</span>
+                        ${r.label}: <span style="color:${color};font-weight:bold;margin-right:auto;font-family:monospace;">${display}</span>
+                    </div>`;
                 });
                 html += `</div>`;
+
                 if (readings.fr !== null && readings.fl !== null) {
                     const diff = Math.abs(readings.fr - readings.fl);
                     html += `<div class="step-description" style="border-right-color:#FFB74D;text-align:center;">
@@ -732,4 +728,96 @@
 
             if (index === 0) statusMsg.textContent = '📖 اقرأ التعليمات جيداً قبل البدء';
             else if (step.id === 'ground') statusMsg.textContent = readings.ground !== null ? '✅ تم تسجيل الأرض' : '📱 ضع الهاتف على الأرض بجانب العجلة';
-            else if (step.id === 'tare') statusMsg.textContent = tareDone ? '✅ تم
+            else if (step.id === 'tare') statusMsg.textContent = tareDone ? '✅ تمت المعايرة' : '🎯 اضغط معايرة الصفر';
+            else statusMsg.textContent = '📐 ضع الهاتف على الجنط';
+        }
+
+        // --- دالة تسجيل الأرض مع التحذير ---
+        function recordGround() {
+            const { beta } = getDisplayAngle();
+            
+            // المنطق الجديد: إذا كانت الأرض مائلة أكثر من حد معين ولم يقبل المستخدم التحذير من قبل
+            const isFloorLevel = Math.abs(beta) < 0.5; // نعتبر أقل من 0.5 درجة مستوٍ تماماً
+            if (!isFloorLevel && !floorWarningAccepted) {
+                // إظهار نافذة التحذير
+                customModal.style.display = 'flex';
+                modalContinue.onclick = function() {
+                    floorWarningAccepted = true;
+                    readings.ground = beta;
+                    customModal.style.display = 'none';
+                    renderStep(currentStep);
+                };
+                modalCancel.onclick = function() {
+                    customModal.style.display = 'none';
+                };
+            } else {
+                // إذا كان مستوياً أو وافق مسبقاً
+                readings.ground = beta;
+                renderStep(currentStep);
+            }
+        }
+
+        // --- دالة المعايرة ---
+        function performTare() {
+            tareOffset.beta = rawBeta;
+            tareOffset.gamma = rawGamma;
+            tareDone = true;
+            renderStep(currentStep);
+        }
+
+        // --- التنقل ---
+        navBack.addEventListener('click', () => {
+            if (currentStep > 0) {
+                currentStep--;
+                renderStep(currentStep);
+            }
+        });
+
+        navNext.addEventListener('click', () => {
+            if (currentStep < steps.length - 1) {
+                if (steps[currentStep].id === 'report') {
+                    // إعادة تعيين التطبيق
+                    currentStep = 0;
+                    readings = { ground: null, fr: null, fl: null, rr: null, rl: null };
+                    tareOffset = { beta: 0, gamma: 0 };
+                    tareDone = false;
+                    floorWarningAccepted = false;
+                } else {
+                    currentStep++;
+                }
+                renderStep(currentStep);
+            }
+        });
+
+        // --- تفعيل الحساسات ---
+        if (window.DeviceOrientationEvent) {
+            window.addEventListener('deviceorientation', function(event) {
+                if (event.beta !== null && event.gamma !== null) {
+                    rawBeta = event.beta;
+                    rawGamma = event.gamma;
+                    isSensorActive = true;
+                    // تحديث الزاوية المعروضة في الخطوات التي تعرضها
+                    const step = steps[currentStep];
+                    if (step && step.showAngle && step.id !== 'ground') {
+                        const { beta, gamma } = getDisplayAngle();
+                        const color = angleColor(beta);
+                        const bigAngle = document.querySelector('.angle-big');
+                        if (bigAngle) {
+                            bigAngle.style.color = color;
+                            bigAngle.innerHTML = `${formatAngle(beta)}<span class="angle-deg">°</span>`;
+                        }
+                        const camberVal = document.querySelector('.value-beta');
+                        const casterVal = document.querySelector('.value-gamma');
+                        if (camberVal) camberVal.textContent = formatAngle(beta);
+                        if (casterVal) casterVal.textContent = formatAngle(gamma);
+                    }
+                }
+            });
+        }
+
+        // --- بداية التطبيق ---
+        renderStep(0);
+    })();
+</script>
+</body>
+</html>
