@@ -9,56 +9,30 @@
     <style>
         /* --- المتغيرات --- */
         :root {
-            --snap-yellow: #FFFC00;
-            --snap-blue: #1A2A4A;
-            --snap-white: #FFFFFF;
-            --snap-black: #0D0D0D;
-            --snap-gray: #F5F5F5;
-            
-            --bg-primary: var(--snap-gray);
-            --bg-secondary: var(--snap-white);
-            --text-primary: var(--snap-black);
-            --text-secondary: #333333;
-            --border-color: #E0E0E0;
-            --shadow-color: rgba(0,0,0,0.1);
-            --card-bg: var(--snap-white);
-            --progress-bg: #E0E0E0;
-            --status-bg: #F0F0F0;
+            --snap-yellow: #FFFC00; --snap-blue: #1A2A4A; --snap-white: #FFFFFF;
+            --snap-black: #0D0D0D; --snap-gray: #F5F5F5;
+            --bg-primary: var(--snap-gray); --bg-secondary: var(--snap-white);
+            --text-primary: var(--snap-black); --text-secondary: #333333;
+            --border-color: #E0E0E0; --shadow-color: rgba(0,0,0,0.1);
+            --card-bg: var(--snap-white); --progress-bg: #E0E0E0; --status-bg: #F0F0F0;
         }
 
         body[data-theme="dark"] {
-            --bg-primary: var(--snap-black);
-            --bg-secondary: #1A1A1A;
-            --text-primary: var(--snap-white);
-            --text-secondary: #CCCCCC;
-            --border-color: #333333;
-            --shadow-color: rgba(255,255,255,0.05);
-            --card-bg: #262626;
-            --progress-bg: #333333;
-            --status-bg: #1A1A1A;
+            --bg-primary: var(--snap-black); --bg-secondary: #1A1A1A;
+            --text-primary: var(--snap-white); --text-secondary: #CCCCCC;
+            --border-color: #333333; --shadow-color: rgba(255,255,255,0.05);
+            --card-bg: #262626; --progress-bg: #333333; --status-bg: #1A1A1A;
         }
 
         body[data-theme="light"] {
-            --bg-primary: var(--snap-gray);
-            --bg-secondary: var(--snap-white);
-            --text-primary: var(--snap-black);
-            --text-secondary: #333333;
-            --border-color: #E0E0E0;
-            --shadow-color: rgba(0,0,0,0.1);
-            --card-bg: var(--snap-white);
-            --progress-bg: #E0E0E0;
-            --status-bg: #F0F0F0;
+            --bg-primary: var(--snap-gray); --bg-secondary: var(--snap-white);
+            --text-primary: var(--snap-black); --text-secondary: #333333;
+            --border-color: #E0E0E0; --shadow-color: rgba(0,0,0,0.1);
+            --card-bg: var(--snap-white); --progress-bg: #E0E0E0; --status-bg: #F0F0F0;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; direction: rtl; }
-        html, body {
-            width: 100%; height: 100%; overflow: hidden;
-            background: var(--bg-primary);
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            color: var(--text-primary);
-            position: fixed; display: flex; flex-direction: column;
-            transition: background 0.3s, color 0.3s;
-        }
+        html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg-primary); font-family: 'Segoe UI', system-ui, sans-serif; color: var(--text-primary); position: fixed; display: flex; flex-direction: column; transition: background 0.3s, color 0.3s; }
 
         #progress-bar { padding: 20px; display: flex; gap: 10px; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); }
         #progress-text { font-size: 14px; font-weight: 600; min-width: 70px; }
@@ -68,24 +42,11 @@
         #step-title { font-size: 18px; font-weight: 700; padding: 12px 20px 0; color: var(--text-primary); }
         #content-area { flex: 1; padding: 10px 20px 5px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
 
-        .step-description {
-            font-size: 15px; color: var(--text-secondary); line-height: 1.6;
-            background: var(--card-bg); padding: 14px 16px; border-radius: 16px;
-            border-right: 4px solid var(--snap-yellow);
-            box-shadow: 0 2px 8px var(--shadow-color);
-        }
+        .step-description { font-size: 15px; color: var(--text-secondary); line-height: 1.6; background: var(--card-bg); padding: 14px 16px; border-radius: 16px; border-right: 4px solid var(--snap-yellow); box-shadow: 0 2px 8px var(--shadow-color); }
 
-        .visual-helper {
-            display: flex; justify-content: center; padding: 15px; background: var(--card-bg);
-            border-radius: 24px; border: 1px solid var(--border-color);
-            font-family: 'Courier New', monospace; font-size: 14px; white-space: pre;
-            direction: ltr; overflow-x: auto; box-shadow: 0 2px 8px var(--shadow-color);
-        }
+        .visual-helper { display: flex; justify-content: center; padding: 15px; background: var(--card-bg); border-radius: 24px; border: 1px solid var(--border-color); font-family: 'Courier New', monospace; font-size: 14px; white-space: pre; direction: ltr; overflow-x: auto; box-shadow: 0 2px 8px var(--shadow-color); }
 
-        .angle-big {
-            font-size: 50px; font-weight: 800; text-align: center; padding: 15px;
-            direction: ltr; background: var(--card-bg); border-radius: 20px; box-shadow: 0 2px 8px var(--shadow-color);
-        }
+        .angle-big { font-size: 50px; font-weight: 800; text-align: center; padding: 15px; direction: ltr; background: var(--card-bg); border-radius: 20px; box-shadow: 0 2px 8px var(--shadow-color); }
         .angle-deg { font-size: 25px; font-weight: 300; color: var(--text-secondary); }
         .sub-reading { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .sub-card { background: var(--card-bg); border-radius: 14px; padding: 10px; text-align: center; box-shadow: 0 2px 8px var(--shadow-color); }
@@ -94,49 +55,31 @@
         .value-beta { color: #4FC3F7; } .value-gamma { color: #FFB74D; }
 
         .action-row { display: flex; gap: 12px; }
-        .action-btn {
-            padding: 14px; border-radius: 60px; border: none; font-weight: 700; font-size: 16px;
-            cursor: pointer; flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
-        }
+        .action-btn { padding: 14px; border-radius: 60px; border: none; font-weight: 700; font-size: 16px; cursor: pointer; flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-record { background: #FF6B6B; color: white; }
         .btn-tare { background: var(--snap-yellow); color: var(--snap-black); }
         .btn-tare:disabled { opacity: 0.4; cursor: not-allowed; }
         .btn-success { background: #10B981; color: white; }
         .btn-primary { background: var(--snap-blue); color: white; }
         .btn-secondary { background: var(--card-bg); color: var(--text-secondary); border: 1px solid var(--border-color); }
+        .btn-sensor { background: #FF9800; color: white; } /* زر الحساس */
 
-        #nav-buttons {
-            padding: 15px 20px 25px; display: flex; gap: 12px;
-            background: var(--bg-secondary); border-top: 1px solid var(--border-color);
-        }
+        #nav-buttons { padding: 15px 20px 25px; display: flex; gap: 12px; background: var(--bg-secondary); border-top: 1px solid var(--border-color); }
         .nav-btn { padding: 14px; border-radius: 60px; border: none; font-weight: 700; font-size: 16px; cursor: pointer; flex: 1; }
         .nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
         #nav-back { flex: 0.5; }
 
         .status-msg { text-align: center; font-size: 12px; color: var(--text-secondary); padding: 6px; background: var(--status-bg); }
 
-        #theme-toggle {
-            position: fixed; bottom: 90px; right: 15px; background: var(--card-bg);
-            border: 1px solid var(--border-color); border-radius: 50%; width: 48px; height: 48px;
-            font-size: 22px; cursor: pointer; z-index: 100; box-shadow: 0 4px 15px var(--shadow-color);
-            display: flex; align-items: center; justify-content: center;
-        }
+        #theme-toggle { position: fixed; bottom: 90px; right: 15px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 50%; width: 48px; height: 48px; font-size: 22px; cursor: pointer; z-index: 100; box-shadow: 0 4px 15px var(--shadow-color); display: flex; align-items: center; justify-content: center; }
 
-        /* --- SVG Gauges IDs --- */
-        .bubble-glass { fill: #8BC34A; stroke: #33691E; stroke-width: 2; }
-        .bubble-highlight { fill: #fff; opacity: 0.6; }
         .bubble-circle { fill: #66BB6A; stroke: #2E7D32; stroke-width: 2; }
 
-        /* --- الرسم البياني --- */
         .chart-container { background: var(--card-bg); border-radius: 16px; padding: 15px; margin-bottom: 15px; text-align: center; }
         .chart-title { font-weight: 800; margin-bottom: 15px; }
         .chart-svg { width: 100%; max-width: 300px; height: auto; }
 
-        /* --- نافذة التحذير --- */
-        #custom-modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center;
-        }
+        #custom-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; }
         .modal-box { background: var(--card-bg); padding: 20px; border-radius: 20px; max-width: 350px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
         .modal-title { font-size: 20px; font-weight: 800; margin-bottom: 10px; color: #FF6B6B; }
         .modal-text { font-size: 15px; line-height: 1.6; margin-bottom: 20px; }
@@ -144,11 +87,7 @@
         .btn-continue { background: #FF6B6B; color: white; }
         .btn-cancel { background: var(--progress-bg); color: var(--text-secondary); }
 
-        @media (max-width: 450px) {
-            .angle-big { font-size: 40px; }
-            .nav-btn { font-size: 14px; padding: 12px; }
-            .action-btn { font-size: 14px; padding: 12px; }
-        }
+        @media (max-width: 450px) { .angle-big { font-size: 40px; } .nav-btn { font-size: 14px; padding: 12px; } .action-btn { font-size: 14px; padding: 12px; } }
     </style>
 </head>
 <body>
@@ -180,10 +119,50 @@
 
 <script>
     (function() {
+        // --- متغيرات الحساسات ---
+        let rawBeta = 0, rawGamma = 0;
+        let sensorActive = false;
+        let sensorError = false;
+
+        // --- استدعاء دالة الإذن (الحل الجذري) ---
+        async function enableSensors() {
+            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                try {
+                    const permissionState = await DeviceOrientationEvent.requestPermission();
+                    if (permissionState === 'granted') {
+                        sensorActive = true;
+                        window.addEventListener('deviceorientation', handleOrientation);
+                        statusMsg.textContent = '✅ الحساسات مفعلة';
+                    } else {
+                        sensorError = true;
+                        statusMsg.textContent = '⛔ رفضت الإذن للحساسات';
+                    }
+                } catch (error) {
+                    sensorError = true;
+                    statusMsg.textContent = '❌ حصل خطأ أثناء تفعيل الحساس';
+                }
+            } else if (typeof DeviceOrientationEvent !== 'undefined') {
+                // متصفحات لا تتطلب إذن (أندرويد غالباً)
+                sensorActive = true;
+                window.addEventListener('deviceorientation', handleOrientation);
+                statusMsg.textContent = '✅ الحساسات تعمل تلقائياً';
+            } else {
+                sensorError = true;
+                statusMsg.textContent = '❌ جهازك لا يدعم الحساسات المطلوبة';
+            }
+        }
+
+        function handleOrientation(event) {
+            if (event.beta !== null && event.gamma !== null) {
+                rawBeta = event.beta;
+                rawGamma = event.gamma;
+                updateDynamicGauges();
+            }
+        }
+
+        // --- المتغيرات الأساسية ---
         const steps = [
-            { id: 'intro', title: '📋 تعليمات ما قبل البدء', desc: 'اقرأ التعليمات جيداً، ثم اضغط "بدء القياس".', 
-              visual: `┌─────────────────────────┐\n│  🛠️  تجهيز السيارة     │\n│                         │\n│  🚗 على أرض مستوية    │\n│  🔧 ضغط الإطارات صحيح  │\n│  🛑 فرامل اليد مشدودة  │\n└─────────────────────────┘`, 
-              checklist: [ { icon: '✅', text: 'السيارة على أرض مستوية.' }, { icon: '✅', text: 'ضغط الإطارات صحيح.' }, { icon: '✅', text: 'أطفئ المحرك واشدد الفرامل.' } ] },
+            { id: 'intro', title: '📋 تعليمات ما قبل البدء', desc: 'اقرأ التعليمات جيداً، ثم اضغط "بدء القياس".', visual: `┌─────────────────────────┐\n│  🛠️  تجهيز السيارة     │\n│                         │\n│  🚗 على أرض مستوية    │\n│  🔧 ضغط الإطارات صحيح  │\n│  🛑 فرامل اليد مشدودة  │\n└─────────────────────────┘`, checklist: [ { icon: '✅', text: 'السيارة على أرض مستوية.' }, { icon: '✅', text: 'ضغط الإطارات صحيح.' }, { icon: '✅', text: 'أطفئ المحرك واشدد الفرامل.' } ] },
             { id: 'ground', title: '🧭 الخطوة 1: قياس مستوى الأرض', desc: 'ضع الهاتف على الأرض بجانب العجلة. **لاحظ حركة الفقاعة!** اضغط "تسجيل" لتخزين القراءة.', visual: `┌────────────────┐\n│  📱 (هاتف)     │\n│  🟫🟫🟫🟫🟫🟫    │\n│  🟫 (الأرض) 🟫  │\n└────────────────┘`, showAngle: true, hasRecordButton: true },
             { id: 'tare', title: '🎯 الخطوة 2: معايرة الصفر (Tare)', desc: 'ضع الهاتف مسطحاً على أرضية السيارة، ثم اضغط "معايرة الصفر".', visual: `┌──────────────┐\n│  🪑 مقعد      │\n│  ┌────┐      │\n│  │📱│ أرضية  │\n│  └────┘      │\n└──────────────┘`, showAngle: true, hasTareButton: true },
             { id: 'fr', title: '🚗 الخطوة 3: قياس الأمامية اليمنى (FR)', desc: 'ضع الهاتف عمودياً على الجنط.', visual: `┌────────────────┐\n│ ⚙️ (جنط) 📱    │\n│  (عمودي)       │\n└────────────────┘`, showAngle: true, side: 'fr' },
@@ -193,10 +172,10 @@
             { id: 'report', title: '📊 التقرير النهائي', desc: 'إليك ملخص القراءات مع الرسم الدائري.', visual: `┌─────────────┐\n│  📈 التقرير  │\n└─────────────┘`, isReport: true }
         ];
 
+        // --- متغيرات التطبيق ---
         let currentStep = 0;
         let readings = { ground: null, fr: null, fl: null, rr: null, rl: null };
         let tareOffset = { beta: 0, gamma: 0 };
-        let rawBeta = 0, rawGamma = 0;
         let tareDone = false;
         let floorWarningAccepted = false;
 
@@ -213,365 +192,114 @@
         const modalContinue = document.getElementById('modal-continue');
 
         // --- الوضع الليلي ---
-        function updateThemeIcon() {
-            const isDark = document.body.getAttribute('data-theme') === 'dark';
-            themeToggle.textContent = isDark ? '☀️' : '🌙';
-        }
-        
-        themeToggle.addEventListener('click', () => {
-            const current = document.body.getAttribute('data-theme');
-            const newTheme = current === 'dark' ? 'light' : 'dark';
-            document.body.setAttribute('data-theme', newTheme);
-            document.getElementById('theme-color').content = newTheme === 'dark' ? '#0D0D0D' : '#F5F5F5';
-            updateThemeIcon();
-        });
-
-        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            document.body.setAttribute('data-theme', 'dark');
-        } else {
-            document.body.setAttribute('data-theme', 'light');
-        }
+        function updateThemeIcon() { const isDark = document.body.getAttribute('data-theme') === 'dark'; themeToggle.textContent = isDark ? '☀️' : '🌙'; }
+        themeToggle.addEventListener('click', () => { const current = document.body.getAttribute('data-theme'); const newTheme = current === 'dark' ? 'light' : 'dark'; document.body.setAttribute('data-theme', newTheme); document.getElementById('theme-color').content = newTheme === 'dark' ? '#0D0D0D' : '#F5F5F5'; updateThemeIcon(); });
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) { document.body.setAttribute('data-theme', 'dark'); } else { document.body.setAttribute('data-theme', 'light'); }
         updateThemeIcon();
 
-        function getDisplayAngle() {
-            return { beta: rawBeta - tareOffset.beta, gamma: rawGamma - tareOffset.gamma };
-        }
+        function getDisplayAngle() { return { beta: rawBeta - tareOffset.beta, gamma: rawGamma - tareOffset.gamma }; }
+        function angleColor(angle) { const abs = Math.abs(angle); if (abs < 1.0) return '#4FC3F7'; if (abs < 2.0) return '#FFB74D'; return '#FF6B6B'; }
+        function formatAngle(angle) { if (angle === null || angle === undefined) return '---'; return `${angle >= 0 ? '+' : ''}${angle.toFixed(2)}°`; }
 
-        function angleColor(angle) {
-            const abs = Math.abs(angle);
-            if (abs < 1.0) return '#4FC3F7';
-            if (abs < 2.0) return '#FFB74D';
-            return '#FF6B6B';
-        }
-
-        function formatAngle(angle) {
-            if (angle === null || angle === undefined) return '---';
-            return `${angle >= 0 ? '+' : ''}${angle.toFixed(2)}°`;
-        }
-
-        // --- إنشاء ميزان المياه الأنبوبي مع معرفات (IDs) للتحديث المباشر ---
+        // --- إنشاء ميزان المياه الأنبوبي ---
         function renderLevelBubble(angle, label = 'مستوى الأرض') {
-            const max = 5;
-            const clamped = Math.max(-max, Math.min(max, angle));
-            const xPos = 50 + (clamped / max) * 40; 
-            const color = angleColor(angle);
-            
-            return `
-            <div class="gauge-container">
-                <div style="text-align:center;font-weight:bold;margin-bottom:5px;">${label}</div>
-                <svg class="gauge-svg" viewBox="0 0 200 60" id="level-gauge">
-                    <rect x="10" y="20" width="180" height="20" rx="10" fill="#c8e6c9" stroke="#2e7d32" stroke-width="2"/>
-                    <line x1="50" y1="18" x2="50" y2="42" stroke="#2e7d32" stroke-width="1"/>
-                    <line x1="90" y1="18" x2="90" y2="42" stroke="#2e7d32" stroke-width="1"/>
-                    <line x1="110" y1="18" x2="110" y2="42" stroke="#2e7d32" stroke-width="1"/>
-                    <line x1="150" y1="18" x2="150" y2="42" stroke="#2e7d32" stroke-width="1"/>
-                    <line x1="100" y1="15" x2="100" y2="45" stroke="#2e7d32" stroke-width="3"/>
-                    
-                    <circle id="level-bubble" cx="${xPos}" cy="30" r="12" class="bubble-circle" fill="${color}" stroke="#2E7D32" stroke-width="2"/>
-                    <circle id="level-highlight" cx="${xPos-4}" cy="25" r="3" fill="#fff" opacity="0.7"/>
-                    
-                    <text x="50" y="55" font-size="10" fill="#666" text-anchor="middle">-</text>
-                    <text x="100" y="55" font-size="10" fill="#666" text-anchor="middle">0</text>
-                    <text x="150" y="55" font-size="10" fill="#666" text-anchor="middle">+</text>
-                </svg>
-            </div>`;
+            const max = 5; const clamped = Math.max(-max, Math.min(max, angle)); const xPos = 50 + (clamped / max) * 40; const color = angleColor(angle);
+            return `<div class="gauge-container"><div style="text-align:center;font-weight:bold;margin-bottom:5px;">${label}</div><svg class="gauge-svg" viewBox="0 0 200 60" id="level-gauge"><rect x="10" y="20" width="180" height="20" rx="10" fill="#c8e6c9" stroke="#2e7d32" stroke-width="2"/><line x1="50" y1="18" x2="50" y2="42" stroke="#2e7d32" stroke-width="1"/><line x1="90" y1="18" x2="90" y2="42" stroke="#2e7d32" stroke-width="1"/><line x1="110" y1="18" x2="110" y2="42" stroke="#2e7d32" stroke-width="1"/><line x1="150" y1="18" x2="150" y2="42" stroke="#2e7d32" stroke-width="1"/><line x1="100" y1="15" x2="100" y2="45" stroke="#2e7d32" stroke-width="3"/><circle id="level-bubble" cx="${xPos}" cy="30" r="12" class="bubble-circle" fill="${color}" stroke="#2E7D32" stroke-width="2"/><circle id="level-highlight" cx="${xPos-4}" cy="25" r="3" fill="#fff" opacity="0.7"/><text x="50" y="55" font-size="10" fill="#666" text-anchor="middle">-</text><text x="100" y="55" font-size="10" fill="#666" text-anchor="middle">0</text><text x="150" y="55" font-size="10" fill="#666" text-anchor="middle">+</text></svg></div>`;
         }
 
-        // --- إنشاء القرص الدائري مع معرفات (IDs) ---
+        // --- إنشاء القرص الدائري ---
         function renderCircularGauge(angle, label = 'زاوية الميل') {
-            const max = 5;
-            const clamped = Math.max(-max, Math.min(max, angle));
-            const radius = Math.abs(clamped) / max * 80; 
-            const x = 100 + (clamped >= 0 ? radius : -radius);
-            const y = 100;
-            const color = angleColor(angle);
-            
-            return `
-            <div class="gauge-container">
-                <div style="text-align:center;font-weight:bold;margin-bottom:5px;">${label}</div>
-                <svg class="gauge-svg" viewBox="0 0 200 200" id="circular-gauge">
-                    <defs>
-                        <radialGradient id="grad1" cx="50%" cy="50%" r="50%">
-                            <stop offset="0%" stop-color="#fff" />
-                            <stop offset="100%" stop-color="#e0e0e0" />
-                        </radialGradient>
-                    </defs>
-                    <circle cx="100" cy="100" r="95" fill="url(#grad1)" stroke="#333" stroke-width="4"/>
-                    <circle cx="100" cy="100" r="80" fill="none" stroke="#eee" stroke-width="1"/>
-                    <circle cx="100" cy="100" r="50" fill="none" stroke="#eee" stroke-width="1"/>
-                    
-                    <line x1="100" y1="5" x2="100" y2="15" stroke="#333" stroke-width="3"/>
-                    <line x1="100" y1="185" x2="100" y2="195" stroke="#333" stroke-width="3"/>
-                    <line x1="5" y1="100" x2="15" y2="100" stroke="#333" stroke-width="3"/>
-                    <line x1="185" y1="100" x2="195" y2="100" stroke="#333" stroke-width="3"/>
-                    
-                    <line x1="25" y1="25" x2="35" y2="35" stroke="#666" stroke-width="2"/>
-                    <line x1="175" y1="25" x2="165" y2="35" stroke="#666" stroke-width="2"/>
-                    <line x1="25" y1="175" x2="35" y2="165" stroke="#666" stroke-width="2"/>
-                    <line x1="175" y1="175" x2="165" y2="165" stroke="#666" stroke-width="2"/>
-                    
-                    <text x="100" y="15" font-size="12" fill="#333" text-anchor="middle">+</text>
-                    <text x="100" y="195" font-size="12" fill="#333" text-anchor="middle">-</text>
-                    <text x="15" y="104" font-size="12" fill="#333" text-anchor="middle">-</text>
-                    <text x="185" y="104" font-size="12" fill="#333" text-anchor="middle">+</text>
-
-                    <circle id="circular-bubble" cx="${x}" cy="${y}" r="15" class="bubble-circle" fill="${color}" stroke="#2E7D32" stroke-width="3"/>
-                    <circle id="circular-highlight" cx="${x-4}" cy="${y-4}" r="4" fill="#fff" opacity="0.7"/>
-                </svg>
-            </div>`;
+            const max = 5; const clamped = Math.max(-max, Math.min(max, angle)); const radius = Math.abs(clamped) / max * 80; const x = 100 + (clamped >= 0 ? radius : -radius); const y = 100; const color = angleColor(angle);
+            return `<div class="gauge-container"><div style="text-align:center;font-weight:bold;margin-bottom:5px;">${label}</div><svg class="gauge-svg" viewBox="0 0 200 200" id="circular-gauge"><defs><radialGradient id="grad1" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#fff" /><stop offset="100%" stop-color="#e0e0e0" /></radialGradient></defs><circle cx="100" cy="100" r="95" fill="url(#grad1)" stroke="#333" stroke-width="4"/><circle cx="100" cy="100" r="80" fill="none" stroke="#eee" stroke-width="1"/><circle cx="100" cy="100" r="50" fill="none" stroke="#eee" stroke-width="1"/><line x1="100" y1="5" x2="100" y2="15" stroke="#333" stroke-width="3"/><line x1="100" y1="185" x2="100" y2="195" stroke="#333" stroke-width="3"/><line x1="5" y1="100" x2="15" y2="100" stroke="#333" stroke-width="3"/><line x1="185" y1="100" x2="195" y2="100" stroke="#333" stroke-width="3"/><line x1="25" y1="25" x2="35" y2="35" stroke="#666" stroke-width="2"/><line x1="175" y1="25" x2="165" y2="35" stroke="#666" stroke-width="2"/><line x1="25" y1="175" x2="35" y2="165" stroke="#666" stroke-width="2"/><line x1="175" y1="175" x2="165" y2="165" stroke="#666" stroke-width="2"/><text x="100" y="15" font-size="12" fill="#333" text-anchor="middle">+</text><text x="100" y="195" font-size="12" fill="#333" text-anchor="middle">-</text><text x="15" y="104" font-size="12" fill="#333" text-anchor="middle">-</text><text x="185" y="104" font-size="12" fill="#333" text-anchor="middle">+</text><circle id="circular-bubble" cx="${x}" cy="${y}" r="15" class="bubble-circle" fill="${color}" stroke="#2E7D32" stroke-width="3"/><circle id="circular-highlight" cx="${x-4}" cy="${y-4}" r="4" fill="#fff" opacity="0.7"/></svg></div>`;
         }
 
-        // --- الرسم البياني الدائري (ثابت) ---
+        // --- الرسم البياني ---
         function renderChart(data, warningMessage) {
-            let svgParts = `<circle cx="100" cy="100" r="90" fill="none" stroke="#eee" stroke-width="1" />`;
-            svgParts += `<circle cx="100" cy="100" r="60" fill="none" stroke="#eee" stroke-width="1" />`;
-            svgParts += `<circle cx="100" cy="100" r="30" fill="none" stroke="#eee" stroke-width="1" />`;
-            svgParts += `<line x1="100" y1="10" x2="100" y2="190" stroke="#ddd" /><line x1="10" y1="100" x2="190" y2="100" stroke="#ddd" />`;
-
-            data.forEach((r, i) => {
-                const val = r.value !== null ? r.value : 0;
-                const maxAbs = 5;
-                const radius = (Math.abs(val) / maxAbs) * 90;
-                let x = 100, y = 100;
-                if (i === 0) y = 100 - radius;
-                if (i === 1) y = 100 + radius;
-                if (i === 2) x = 100 + radius;
-                if (i === 3) x = 100 - radius;
-                
-                const color = angleColor(val);
-                svgParts += `<circle cx="${x}" cy="${y}" r="10" fill="${color}" stroke="#fff" stroke-width="2" />`;
-                svgParts += `<line x1="100" y1="100" x2="${x}" y2="${y}" stroke="${color}" stroke-width="2" stroke-dasharray="4,4" opacity="0.6"/>`;
-            });
-
+            let svgParts = `<circle cx="100" cy="100" r="90" fill="none" stroke="#eee" stroke-width="1" />`; svgParts += `<circle cx="100" cy="100" r="60" fill="none" stroke="#eee" stroke-width="1" />`; svgParts += `<circle cx="100" cy="100" r="30" fill="none" stroke="#eee" stroke-width="1" />`; svgParts += `<line x1="100" y1="10" x2="100" y2="190" stroke="#ddd" /><line x1="10" y1="100" x2="190" y2="100" stroke="#ddd" />`;
+            data.forEach((r, i) => { const val = r.value !== null ? r.value : 0; const maxAbs = 5; const radius = (Math.abs(val) / maxAbs) * 90; let x = 100, y = 100; if (i === 0) y = 100 - radius; if (i === 1) y = 100 + radius; if (i === 2) x = 100 + radius; if (i === 3) x = 100 - radius; const color = angleColor(val); svgParts += `<circle cx="${x}" cy="${y}" r="10" fill="${color}" stroke="#fff" stroke-width="2" />`; svgParts += `<line x1="100" y1="100" x2="${x}" y2="${y}" stroke="${color}" stroke-width="2" stroke-dasharray="4,4" opacity="0.6"/>`; });
             let html = `<div class="chart-container"><div class="chart-title">📊 تحليل الزوايا</div><svg class="chart-svg" viewBox="0 0 200 200">${svgParts}</svg></div>`;
-            
-            if (warningMessage) {
-                html += `<div class="step-description" style="border-right-color:#FF6B6B;background:#FFE5E5;color:#c0392b;font-size:14px;margin-top:10px;"><strong>⚠️ تنبيه:</strong> ${warningMessage}</div>`;
-            }
+            if (warningMessage) { html += `<div class="step-description" style="border-right-color:#FF6B6B;background:#FFE5E5;color:#c0392b;font-size:14px;margin-top:10px;"><strong>⚠️ تنبيه:</strong> ${warningMessage}</div>`; }
             return html;
         }
 
-        // --- دالة تحديث العناصر المباشرة (تسمى من الحساسات) ---
+        // --- تحديث الميزان المباشر ---
         function updateDynamicGauges() {
-            // 1. تحديث ميزان الأنبوب (إذا كان في خطوة الأرض)
-            const levelBubble = document.getElementById('level-bubble');
-            const levelHighlight = document.getElementById('level-highlight');
-            if (levelBubble) {
-                const { beta } = getDisplayAngle();
-                const clamped = Math.max(-5, Math.min(5, beta));
-                const xPos = 50 + (clamped / 5) * 40;
-                const color = angleColor(beta);
-                
-                levelBubble.setAttribute('cx', xPos);
-                levelBubble.setAttribute('fill', color);
-                if (levelHighlight) levelHighlight.setAttribute('cx', xPos - 4);
-            }
-
-            // 2. تحديث القرص الدائري (إذا كان في خطوات العجلات)
-            const circularBubble = document.getElementById('circular-bubble');
-            const circularHighlight = document.getElementById('circular-highlight');
-            if (circularBubble) {
-                const { beta } = getDisplayAngle();
-                const clamped = Math.max(-5, Math.min(5, beta));
-                const radius = Math.abs(clamped) / 5 * 80; 
-                const x = 100 + (clamped >= 0 ? radius : -radius);
-                const y = 100;
-                const color = angleColor(beta);
-
-                circularBubble.setAttribute('cx', x);
-                circularBubble.setAttribute('cy', y);
-                circularBubble.setAttribute('fill', color);
-                if (circularHighlight) {
-                    circularHighlight.setAttribute('cx', x - 4);
-                    circularHighlight.setAttribute('cy', y - 4);
-                }
-            }
-
-            // 3. تحديث النصوص الكبيرة (الزاوية الرقمية)
-            const bigAngle = document.querySelector('.angle-big');
-            if (bigAngle) {
-                const { beta } = getDisplayAngle();
-                bigAngle.style.color = angleColor(beta);
-                bigAngle.innerHTML = `${formatAngle(beta)}<span class="angle-deg">°</span>`;
-            }
+            const levelBubble = document.getElementById('level-bubble'); const levelHighlight = document.getElementById('level-highlight');
+            if (levelBubble) { const { beta } = getDisplayAngle(); const clamped = Math.max(-5, Math.min(5, beta)); const xPos = 50 + (clamped / 5) * 40; const color = angleColor(beta); levelBubble.setAttribute('cx', xPos); levelBubble.setAttribute('fill', color); if (levelHighlight) levelHighlight.setAttribute('cx', xPos - 4); }
+            const circularBubble = document.getElementById('circular-bubble'); const circularHighlight = document.getElementById('circular-highlight');
+            if (circularBubble) { const { beta } = getDisplayAngle(); const clamped = Math.max(-5, Math.min(5, beta)); const radius = Math.abs(clamped) / 5 * 80; const x = 100 + (clamped >= 0 ? radius : -radius); const y = 100; const color = angleColor(beta); circularBubble.setAttribute('cx', x); circularBubble.setAttribute('cy', y); circularBubble.setAttribute('fill', color); if (circularHighlight) { circularHighlight.setAttribute('cx', x - 4); circularHighlight.setAttribute('cy', y - 4); } }
+            const bigAngle = document.querySelector('.angle-big'); if (bigAngle) { const { beta } = getDisplayAngle(); bigAngle.style.color = angleColor(beta); bigAngle.innerHTML = `${formatAngle(beta)}<span class="angle-deg">°</span>`; }
         }
 
         // --- عرض الخطوات ---
         function renderStep(index) {
-            const step = steps[index];
-            if (!step) return;
-
-            const total = steps.length - 1;
-            progressText.textContent = `الخطوة ${index}/${total}`;
-            progressFill.style.width = `${(index / total) * 100}%`;
-            stepTitle.textContent = step.title;
-
-            let html = `<div class="step-description">${step.desc}</div>`;
-            if (step.visual) html += `<div class="visual-helper">${step.visual}</div>`;
-
-            // عرض الميزان الأنبوبي في خطوة الأرض
+            const step = steps[index]; if (!step) return;
+            const total = steps.length - 1; progressText.textContent = `الخطوة ${index}/${total}`; progressFill.style.width = `${(index / total) * 100}%`; stepTitle.textContent = step.title;
+            let html = `<div class="step-description">${step.desc}</div>`; if (step.visual) html += `<div class="visual-helper">${step.visual}</div>`;
+            
             if (step.id === 'ground') {
                 const { beta } = getDisplayAngle();
                 html += renderLevelBubble(beta, '📏 ميلان الأرض');
+                if (!sensorActive && !sensorError) { html += `<button class="action-btn btn-sensor" id="enable-sensor" style="margin-top:10px;">📱 تفعيل الحساسات</button>`; }
+                else if (sensorError) { html += `<div style="background:#FFE5E5;color:#c0392b;padding:10px;border-radius:10px;text-align:center;">الرجاء تفعيل الحساسات في إعدادات المتصفح ثم إعادة المحاولة</div>`; }
             }
 
-            // عرض الزاوية والقرص الدائري في باقي الخطوات
             if (step.showAngle && step.id !== 'ground') {
-                const { beta, gamma } = getDisplayAngle();
-                const color = angleColor(beta);
+                const { beta, gamma } = getDisplayAngle(); const color = angleColor(beta);
                 html += `<div class="angle-big" style="color:${color}">${formatAngle(beta)}<span class="angle-deg">°</span></div>`;
                 html += `<div class="sub-reading"><div class="sub-card"><div class="sub-label">📐 الميلان الجانبي</div><div class="sub-value value-beta">${formatAngle(beta)}</div></div><div class="sub-card"><div class="sub-label">📏 الميلان الأمامي</div><div class="sub-value value-gamma">${formatAngle(gamma)}</div></div></div>`;
-                
-                if (['fr', 'fl', 'rr', 'rl'].includes(step.id)) {
-                    html += renderCircularGauge(beta, '🌐 القرص الدائري للعجلة');
-                }
+                if (['fr', 'fl', 'rr', 'rl'].includes(step.id)) { html += renderCircularGauge(beta, '🌐 القرص الدائري للعجلة'); }
             }
 
-            if (step.hasRecordButton) {
-                const isRecorded = readings.ground !== null;
-                html += `<div class="action-row"><button class="action-btn btn-record" id="record-btn">${isRecorded ? '✅ تم التسجيل' : '📝 تسجيل'}</button></div>`;
-            }
-
-            if (step.hasTareButton) {
-                html += `<div class="action-row"><button class="action-btn btn-tare" id="tare-action-btn" ${tareDone ? 'disabled' : ''}>${tareDone ? '✅ تمت المعايرة' : '🎯 معايرة الصفر'}</button></div>`;
-            }
-
-            if (step.checklist) {
-                html += `<div class="checklist" style="background:var(--card-bg);border-radius:16px;padding:12px;border:1px solid var(--border-color);">`;
-                step.checklist.forEach(item => {
-                    html += `<div style="display:flex;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-color);"><span>${item.icon}</span> ${item.text}</div>`;
-                });
-                html += `</div>`;
-            }
-
+            if (step.hasRecordButton) { const isRecorded = readings.ground !== null; html += `<div class="action-row"><button class="action-btn btn-record" id="record-btn">${isRecorded ? '✅ تم التسجيل' : '📝 تسجيل'}</button></div>`; }
+            if (step.hasTareButton) { html += `<div class="action-row"><button class="action-btn btn-tare" id="tare-action-btn" ${tareDone ? 'disabled' : ''}>${tareDone ? '✅ تمت المعايرة' : '🎯 معايرة الصفر'}</button></div>`; }
+            if (step.checklist) { html += `<div class="checklist" style="background:var(--card-bg);border-radius:16px;padding:12px;border:1px solid var(--border-color);">`; step.checklist.forEach(item => { html += `<div style="display:flex;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-color);"><span>${item.icon}</span> ${item.text}</div>`; }); html += `</div>`; }
             if (step.isReport) {
-                const reportData = [
-                    { label: 'FR', key: 'fr' }, { label: 'FL', key: 'fl' },
-                    { label: 'RR', key: 'rr' }, { label: 'RL', key: 'rl' }
-                ];
-                let warningMsg = null;
-                if (floorWarningAccepted) warningMsg = "تم بدء القياس على أرض غير مستوية، قد تكون النتائج بها هامش خطأ.";
-
+                const reportData = [ { label: 'FR', key: 'fr' }, { label: 'FL', key: 'fl' }, { label: 'RR', key: 'rr' }, { label: 'RL', key: 'rl' } ];
+                let warningMsg = null; if (floorWarningAccepted) warningMsg = "تم بدء القياس على أرض غير مستوية، قد تكون النتائج بها هامش خطأ.";
                 html += renderChart(reportData.map(r => ({ label: r.label, value: readings[r.key] })), warningMsg);
-                
-                html += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px;">`;
-                reportData.forEach(r => {
-                    const val = readings[r.key];
-                    const display = val !== null ? formatAngle(val) : 'لم تقاس';
-                    const icon = val !== null ? (Math.abs(val) < 1.5 ? '✅' : '⚠️') : '⬜';
-                    html += `<div class="sub-card"><span>${icon} ${r.label}</span><br><strong style="font-family:monospace;">${display}</strong></div>`;
-                });
-                html += `</div>`;
+                html += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px;">`; reportData.forEach(r => { const val = readings[r.key]; const display = val !== null ? formatAngle(val) : 'لم تقاس'; const icon = val !== null ? (Math.abs(val) < 1.5 ? '✅' : '⚠️') : '⬜'; html += `<div class="sub-card"><span>${icon} ${r.label}</span><br><strong style="font-family:monospace;">${display}</strong></div>`; }); html += `</div>`;
             }
-
             stepContent.innerHTML = html;
 
-            if (step.hasRecordButton) {
-                const recordBtn = document.getElementById('record-btn');
-                if (recordBtn) recordBtn.addEventListener('click', recordGround);
-            }
-            if (step.hasTareButton) {
-                const tareBtn = document.getElementById('tare-action-btn');
-                if (tareBtn) tareBtn.addEventListener('click', performTare);
-            }
+            if (step.id === 'ground') { const sensorBtn = document.getElementById('enable-sensor'); if (sensorBtn) sensorBtn.addEventListener('click', enableSensors); }
+            if (step.hasRecordButton) { const recordBtn = document.getElementById('record-btn'); if (recordBtn) recordBtn.addEventListener('click', recordGround); }
+            if (step.hasTareButton) { const tareBtn = document.getElementById('tare-action-btn'); if (tareBtn) tareBtn.addEventListener('click', performTare); }
 
             navBack.style.display = index === 0 ? 'none' : 'flex';
-
-            if (step.id === 'intro') {
-                navNext.textContent = '🚀 بدء القياس';
-                navNext.className = 'nav-btn btn-success';
-                navNext.disabled = false;
-            } else if (step.isReport) {
-                navNext.textContent = '🔄 إعادة القياس';
-                navNext.className = 'nav-btn btn-secondary';
-                navNext.disabled = false;
-            } else if (step.id === 'tare') {
-                navNext.textContent = tareDone ? '✅ متابعة ➜' : '⏳ انتظر المعايرة...';
-                navNext.className = `nav-btn ${tareDone ? 'btn-primary' : 'btn-secondary'}`;
-                navNext.disabled = !tareDone;
-            } else if (step.id === 'ground') {
-                const isRecorded = readings.ground !== null;
-                navNext.textContent = isRecorded ? '✅ متابعة ➜' : '⏳ سجل الأرض أولاً';
-                navNext.className = `nav-btn ${isRecorded ? 'btn-primary' : 'btn-secondary'}`;
-                navNext.disabled = !isRecorded;
-            } else {
-                const side = step.side;
-                const isMeasured = side && readings[side] !== null;
-                navNext.textContent = isMeasured ? '✅ تم، تابع ➜' : '📐 تأكيد القراءة';
-                navNext.className = `nav-btn ${isMeasured ? 'btn-success' : 'btn-primary'}`;
-                navNext.disabled = false;
-            }
-
+            if (step.id === 'intro') { navNext.textContent = '🚀 بدء القياس'; navNext.className = 'nav-btn btn-success'; navNext.disabled = false; }
+            else if (step.isReport) { navNext.textContent = '🔄 إعادة القياس'; navNext.className = 'nav-btn btn-secondary'; navNext.disabled = false; }
+            else if (step.id === 'tare') { navNext.textContent = tareDone ? '✅ متابعة ➜' : '⏳ انتظر المعايرة...'; navNext.className = `nav-btn ${tareDone ? 'btn-primary' : 'btn-secondary'}`; navNext.disabled = !tareDone; }
+            else if (step.id === 'ground') { const isRecorded = readings.ground !== null; navNext.textContent = isRecorded ? '✅ متابعة ➜' : '⏳ سجل الأرض أولاً'; navNext.className = `nav-btn ${isRecorded ? 'btn-primary' : 'btn-secondary'}`; navNext.disabled = !isRecorded; }
+            else { const side = step.side; const isMeasured = side && readings[side] !== null; navNext.textContent = isMeasured ? '✅ تم، تابع ➜' : '📐 تأكيد القراءة'; navNext.className = `nav-btn ${isMeasured ? 'btn-success' : 'btn-primary'}`; navNext.disabled = false; }
             statusMsg.textContent = index === 0 ? 'اقرأ التعليمات' : (step.id === 'tare' ? 'اضغط المعايرة' : 'ضع الهاتف على الجنط');
-            
-            // استدعاء دالة التحديث المباشر عند الرسم لأول مرة
             updateDynamicGauges();
         }
 
         // --- منطق التحذير ---
         function recordGround() {
-            const { beta } = getDisplayAngle();
-            const isFloorLevel = Math.abs(beta) < 0.5; 
-            
-            if (!isFloorLevel && !floorWarningAccepted) {
-                customModal.style.display = 'flex';
-                modalContinue.onclick = function() {
-                    floorWarningAccepted = true;
-                    readings.ground = beta;
-                    customModal.style.display = 'none';
-                    renderStep(currentStep);
-                };
-                modalCancel.onclick = function() {
-                    customModal.style.display = 'none';
-                };
-            } else {
-                readings.ground = beta;
-                renderStep(currentStep);
-            }
-        }
-
-        function performTare() {
-            tareOffset.beta = rawBeta;
-            tareOffset.gamma = rawGamma;
-            tareDone = true;
-            renderStep(currentStep);
-        }
-
-        // --- التنقل ---
-        navBack.addEventListener('click', () => {
-            if (currentStep > 0) { currentStep--; renderStep(currentStep); }
-        });
-
-        navNext.addEventListener('click', () => {
-            if (steps[currentStep].isReport) {
-                readings = { ground: null, fr: null, fl: null, rr: null, rl: null };
-                tareOffset = { beta: 0, gamma: 0 };
-                tareDone = false;
-                floorWarningAccepted = false;
-                currentStep = 0;
-                renderStep(currentStep);
+            if (!sensorActive) {
+                alert("الرجاء الضغط على زر 'تفعيل الحساسات' أولاً للتأكد من أن القياس صحيح!");
                 return;
             }
-
-            if (currentStep < steps.length - 1) {
-                currentStep++;
-                renderStep(currentStep);
-            }
-        });
-
-        // --- تفعيل الحساسات وتحديث الميزان مباشرة ---
-        if (window.DeviceOrientationEvent) {
-            window.addEventListener('deviceorientation', function(event) {
-                if (event.beta !== null && event.gamma !== null) {
-                    rawBeta = event.beta;
-                    rawGamma = event.gamma;
-                    
-                    // تحديث العناصر الحية (الفقاعات والنصوص) في كل لحظة
-                    updateDynamicGauges();
-                }
-            });
+            const { beta } = getDisplayAngle(); const isFloorLevel = Math.abs(beta) < 0.5;
+            if (!isFloorLevel && !floorWarningAccepted) {
+                customModal.style.display = 'flex';
+                modalContinue.onclick = function() { floorWarningAccepted = true; readings.ground = beta; customModal.style.display = 'none'; renderStep(currentStep); };
+                modalCancel.onclick = function() { customModal.style.display = 'none'; };
+            } else { readings.ground = beta; renderStep(currentStep); }
         }
 
+        function performTare() { tareOffset.beta = rawBeta; tareOffset.gamma = rawGamma; tareDone = true; renderStep(currentStep); }
+
+        // --- التنقل ---
+        navBack.addEventListener('click', () => { if (currentStep > 0) { currentStep--; renderStep(currentStep); } });
+        navNext.addEventListener('click', () => {
+            if (steps[currentStep].isReport) { readings = { ground: null, fr: null, fl: null, rr: null, rl: null }; tareOffset = { beta: 0, gamma: 0 }; tareDone = false; floorWarningAccepted = false; currentStep = 0; renderStep(currentStep); return; }
+            if (currentStep < steps.length - 1) { currentStep++; renderStep(currentStep); }
+        });
+
+        // --- البدء ---
         renderStep(0);
     })();
 </script>
