@@ -2,28 +2,41 @@
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>معايرة زوايا السيارة - النسخة التجريبية</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0f1e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <!-- ربط ملف البيان (التطبيق) -->
+    <link rel="manifest" href="manifest.json">
+    
+    <title>معايرة زوايا السيارة</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; direction: rtl; }
-        body { 
-            background: #0a0f1e; 
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            height: 100vh;
+        html, body {
+            width: 100%;
+            height: 100%;
+            height: 100dvh; /* أهم سطر: يملأ الشاشة حتى مع وجود الأشرطة */
             overflow: hidden;
+            background: #0a0f1e;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             color: #fff;
+            position: fixed; /* يثبت التطبيق ولا يسمح بالتمرير */
+            top: 0;
+            left: 0;
         }
         #video-container {
             position: relative;
             width: 100vw;
             height: 100vh;
+            height: 100dvh;
             background: #000;
         }
         #video { 
             width: 100%; 
             height: 100%; 
             object-fit: cover;
-            transform: scaleX(-1); /* عكس الكاميرا لتكون كالمرآة */
+            transform: scaleX(-1);
         }
         #canvas-overlay {
             position: absolute;
@@ -31,84 +44,120 @@
             left: 0;
             width: 100%;
             height: 100%;
-            pointer-events: none; /* ليمرر اللمس للزر تحته */
+            pointer-events: none;
         }
-        /* لوحة البيانات الشفافة */
+        /* لوحة البيانات الشفافة - تم تعديلها لتناسب الأسفل */
         #dashboard {
             position: absolute;
-            bottom: 20px;
+            bottom: 15px;
             left: 10px;
             right: 10px;
-            background: rgba(10, 15, 30, 0.85);
-            backdrop-filter: blur(12px);
-            border-radius: 24px;
-            padding: 18px 20px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(10, 15, 30, 0.8);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 28px;
+            padding: 16px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
+            gap: 8px;
             text-align: center;
             pointer-events: auto;
+            z-index: 30;
+            box-shadow: 0 -8px 30px rgba(0,0,0,0.7);
         }
         .sensor-card {
-            background: rgba(255,255,255,0.05);
-            border-radius: 16px;
-            padding: 10px 5px;
+            background: rgba(255,255,255,0.04);
+            border-radius: 14px;
+            padding: 8px 2px;
         }
         .sensor-label {
-            font-size: 11px;
+            font-size: 10px;
             color: #8e9aaf;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
         .sensor-value {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 700;
-            margin-top: 5px;
+            margin-top: 2px;
             font-family: 'Courier New', monospace;
         }
-        .value-beta { color: #4fc3f7; } /* الميلان الأمامي/الخلفي (Camber) */
-        .value-gamma { color: #ffb74d; } /* الميلان الجانبي (Toe/Caster) */
-        .value-alpha { color: #81c784; } /* الاتجاه (Yaw) */
+        .value-beta { color: #4fc3f7; }
+        .value-gamma { color: #ffb74d; }
+        .value-alpha { color: #81c784; }
+        .small-note {
+            font-size: 8px;
+            color: #5a6a7e;
+            margin-top: 2px;
+        }
+
         #start-btn {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            padding: 20px 40px;
-            font-size: 22px;
+            padding: 18px 36px;
+            font-size: 20px;
             background: #2563eb;
             color: white;
             border: none;
             border-radius: 60px;
             font-weight: bold;
             box-shadow: 0 8px 30px rgba(37, 99, 235, 0.6);
-            z-index: 20;
+            z-index: 40;
             cursor: pointer;
             pointer-events: auto;
             letter-spacing: 1px;
+            transition: all 0.3s;
         }
+        #start-btn:active { transform: translate(-50%, -50%) scale(0.95); }
+
         #status-text {
             position: absolute;
-            top: 40px;
-            left: 0;
-            right: 0;
+            top: 20px;
+            left: 10px;
+            right: 10px;
             text-align: center;
-            font-size: 14px;
-            color: #aab;
+            font-size: 13px;
+            color: #ccd;
             background: rgba(0,0,0,0.5);
-            padding: 8px;
+            padding: 8px 12px;
+            border-radius: 40px;
             backdrop-filter: blur(4px);
-            z-index: 10;
+            z-index: 20;
             pointer-events: none;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
-        .small-note {
-            font-size: 9px;
-            color: #5a6a7e;
-            margin-top: 4px;
+
+        /* زر التثبيت (يظهر فقط عند الحاجة) */
+        #install-btn {
+            position: absolute;
+            bottom: 110px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2d3748;
+            color: #fff;
+            border: 1px solid #4a5568;
+            padding: 10px 28px;
+            border-radius: 40px;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 50;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            display: none; /* يظهر فقط عبر جافاسكريبت */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            pointer-events: auto;
         }
-        @media (max-width: 500px) {
-            .sensor-value { font-size: 20px; }
+        #install-btn:active { background: #4a5568; }
+
+        @media (max-width: 450px) {
+            .sensor-value { font-size: 18px; }
+            #dashboard { padding: 12px 8px; gap: 4px; }
+            .sensor-label { font-size: 9px; }
         }
     </style>
 </head>
@@ -118,42 +167,40 @@
     <video id="video" autoplay playsinline></video>
     <canvas id="canvas-overlay"></canvas>
     
-    <div id="status-text">⏳ انتظر تشغيل الكاميرا والمستشعرات...</div>
+    <div id="status-text">👆 اضغط الزر الأخضر لتشغيل الكاميرا</div>
     <button id="start-btn">📸 تشغيل الكاميرا والمعايرة</button>
+    <button id="install-btn">📲 تثبيت التطبيق على الجهاز</button>
 
-    <!-- لوحة عرض الزوايا -->
     <div id="dashboard">
         <div class="sensor-card">
             <div class="sensor-label">📐 الميلان (Camber)</div>
             <div class="sensor-value value-beta" id="val-beta">0.00°</div>
-            <div class="small-note">إمالة العجلة للداخل/الخارج</div>
+            <div class="small-note">إمالة العجلة</div>
         </div>
         <div class="sensor-card">
-            <div class="sensor-label">🔄 الانحراف (Toe/Caster)</div>
+            <div class="sensor-label">🔄 الانحراف (Toe)</div>
             <div class="sensor-value value-gamma" id="val-gamma">0.00°</div>
-            <div class="small-note">دوران العجلة يمين/يسار</div>
+            <div class="small-note">دوران العجلة</div>
         </div>
         <div class="sensor-card">
-            <div class="sensor-label">🧭 البوصلة (الاتجاه)</div>
+            <div class="sensor-label">🧭 الاتجاه</div>
             <div class="sensor-value value-alpha" id="val-alpha">0.00°</div>
-            <div class="small-note">زاوية انعطاف الهاتف</div>
+            <div class="small-note">زاوية الهاتف</div>
         </div>
     </div>
 </div>
 
 <script>
     (function() {
-        // --- العناصر ---
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas-overlay');
         const ctx = canvas.getContext('2d');
         const startBtn = document.getElementById('start-btn');
+        const installBtn = document.getElementById('install-btn');
         const statusText = document.getElementById('status-text');
-
         const betaEl = document.getElementById('val-beta');
         const gammaEl = document.getElementById('val-gamma');
         const alphaEl = document.getElementById('val-alpha');
-
         let stream = null;
         let isRunning = false;
 
@@ -165,135 +212,136 @@
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
-        // --- رسم شبكة وخطوط فوق الكاميرا (للمساعدة البصرية) ---
+        // --- رسم شبكة مساعدة ---
         function drawGuidelines() {
             const w = canvas.width;
             const h = canvas.height;
             ctx.clearRect(0, 0, w, h);
-
-            // خط أفقي في المنتصف (مستوى الأفق)
             ctx.beginPath();
-            ctx.strokeStyle = 'rgba(0, 255, 200, 0.6)';
+            ctx.strokeStyle = 'rgba(0, 255, 200, 0.4)';
             ctx.lineWidth = 2;
             ctx.setLineDash([8, 12]);
             ctx.moveTo(0, h / 2);
             ctx.lineTo(w, h / 2);
             ctx.stroke();
-
-            // خط عمودي في المنتصف
             ctx.beginPath();
-            ctx.strokeStyle = 'rgba(255, 200, 0, 0.6)';
+            ctx.strokeStyle = 'rgba(255, 200, 0, 0.4)';
             ctx.lineWidth = 2;
             ctx.setLineDash([8, 12]);
             ctx.moveTo(w / 2, 0);
             ctx.lineTo(w / 2, h);
             ctx.stroke();
-
-            // إطار دائري في المنتصف (لمحاذاة الجنط)
             ctx.beginPath();
-            ctx.strokeStyle = 'rgba(255, 100, 100, 0.4)';
+            ctx.strokeStyle = 'rgba(255, 100, 100, 0.3)';
             ctx.lineWidth = 3;
             ctx.setLineDash([]);
-            const radius = Math.min(w, h) * 0.22;
+            const radius = Math.min(w, h) * 0.2;
             ctx.arc(w / 2, h / 2, radius, 0, 2 * Math.PI);
             ctx.stroke();
-            
-            // كتابة تعليق بسيط
-            ctx.font = '14px Arial';
-            ctx.fillStyle = 'rgba(255,255,255,0.4)';
-            ctx.fillText('حاذِ العلامة مع الدائرة', w/2 - 60, h/2 + radius + 30);
-            
             ctx.setLineDash([]);
         }
 
-        // --- تشغيل الكاميرا ---
+        // --- تشغيل الكاميرا وملء الشاشة ---
         async function startCamera() {
             try {
-                statusText.innerText = '⌛ جاري طلب صلاحية الكاميرا...';
+                statusText.innerText = '⌛ جاري تشغيل الكاميرا...';
                 stream = await navigator.mediaDevices.getUserMedia({ 
                     video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
                     audio: false 
                 });
                 video.srcObject = stream;
                 await video.play();
-                statusText.innerText = '✅ الكاميرا تعمل. قم بتثبيت الهاتف على السيارة.';
+                statusText.innerText = '✅ الكاميرا تعمل. ضع الهاتف على السيارة.';
                 startBtn.style.display = 'none';
                 isRunning = true;
                 drawGuidelines();
-                // تحديث الرسم كل ثانية لإزالة التشويش
-                setInterval(drawGuidelines, 1000);
+                setInterval(drawGuidelines, 2000);
+
+                // --- دخول وضع ملء الشاشة (Fullscreen) تلقائياً ---
+                try {
+                    if (document.documentElement.requestFullscreen) {
+                        await document.documentElement.requestFullscreen();
+                        statusText.innerText = '📱 وضع ملء الشاشة مفعل.';
+                    } else if (document.documentElement.webkitRequestFullscreen) { // لدعم بعض متصفحات الأندرويد القديمة
+                        document.documentElement.webkitRequestFullscreen();
+                    }
+                } catch (fsErr) {
+                    // بعض الهواتف تمنع ملء الشاشة تلقائياً، لكن الزر سيظل يعمل
+                    statusText.innerText = '⚠️ اضغط على زر "ملء الشاشة" إن وجد.';
+                    console.log('Fullscreen not supported automatically');
+                }
+
             } catch (err) {
-                statusText.innerText = '❌ خطأ: لم نتمكن من فتح الكاميرا. امنح الصلاحية يدوياً.';
+                statusText.innerText = '❌ خطأ في الكاميرا: امنح الصلاحية.';
                 console.error(err);
                 startBtn.style.display = 'block';
             }
         }
 
-        // --- مستشعرات الاتجاه (العمود الفقري للزوايا) ---
+        // --- مستشعرات الميلان ---
         function initSensors() {
-            // نتحقق إذا كان الهاتف يدعم المستشعرات
             if (window.DeviceOrientationEvent) {
-                // للأندرويد الحديث، بعض المتصفحات تطلب إذناً خاصاً للمستشعرات (Android 13+)
-                // لكننا سنستخدم الطريقة العادية مع محاولة الطلب.
-                window.addEventListener('deviceorientation', handleOrientation, true);
+                if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+                    DeviceOrientationEvent.requestPermission().then(state => {
+                        if (state === 'granted') window.addEventListener('deviceorientation', handleOrientation, true);
+                        else statusText.innerText = '⛔ تم رفض صلاحية المستشعرات.';
+                    }).catch(() => {});
+                } else {
+                    window.addEventListener('deviceorientation', handleOrientation, true);
+                }
                 statusText.innerText = '🔄 مستشعرات الميلان مفعلة.';
             } else {
-                statusText.innerText = '⚠️ هاتفك لا يدعم مستشعرات الميلان المتقدمة.';
-            }
-
-            // محاولة طلب إذن المستشعرات (لأندرويد 13+)
-            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-                DeviceOrientationEvent.requestPermission()
-                .then(response => {
-                    if (response === 'granted') {
-                        window.addEventListener('deviceorientation', handleOrientation, true);
-                    } else {
-                        statusText.innerText = '⛔ تم رفض صلاحية المستشعرات.';
-                    }
-                }).catch(() => {});
+                statusText.innerText = '⚠️ هاتفك لا يدعم المستشعرات.';
             }
         }
 
-        // --- دالة حساب الزوايا وتحديث الشاشة ---
         function handleOrientation(event) {
             if (!isRunning) return;
-
-            // Alpha: الاتجاه (البوصلة) 0-360
-            let alpha = event.alpha || 0;
-            // Beta: الميلان الأمامي/الخلفي (يمثل Camber) -180 إلى 180
-            let beta = event.beta || 0;
-            // Gamma: الميلان الجانبي (يمثل Toe/Caster) -90 إلى 90
-            let gamma = event.gamma || 0;
-
-            // تقريب القيم لعرضها بشكل جميل
-            const betaFixed = beta.toFixed(2);
-            const gammaFixed = gamma.toFixed(2);
-            const alphaFixed = alpha.toFixed(2);
-
-            betaEl.innerText = `${betaFixed}°`;
-            gammaEl.innerText = `${gammaFixed}°`;
-            alphaEl.innerText = `${alphaFixed}°`;
-
-            // تغيير لون الخلفية بشكل بسيط حسب شدة الميلان (تأثير بصري)
-            const intensity = Math.min(Math.abs(beta) / 45, 1);
-            document.getElementById('dashboard').style.borderColor = 
-                `rgba(255, ${200 - intensity * 150}, 100, ${0.2 + intensity * 0.5})`;
+            let beta = (event.beta || 0).toFixed(2);
+            let gamma = (event.gamma || 0).toFixed(2);
+            let alpha = (event.alpha || 0).toFixed(2);
+            betaEl.innerText = `${beta}°`;
+            gammaEl.innerText = `${gamma}°`;
+            alphaEl.innerText = `${alpha}°`;
         }
 
-        // --- زر البدء ---
+        // --- أحداث الأزرار ---
         startBtn.addEventListener('click', () => {
             startCamera();
             initSensors();
         });
 
-        // محاولة البدء التلقائي عند تحميل الصفحة (قد تمنعها سياسة المتصفح لكن نجرب)
+        // --- زر التثبيت (PWA) ---
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.style.display = 'block'; // نُظهر الزر
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const result = await deferredPrompt.userChoice;
+                if (result.outcome === 'accepted') {
+                    statusText.innerText = '✅ تم تثبيت التطبيق على شاشتك الرئيسية!';
+                    installBtn.style.display = 'none';
+                } else {
+                    statusText.innerText = 'تم إلغاء التثبيت.';
+                }
+                deferredPrompt = null;
+            } else {
+                // حل بديل: توجيه المستخدم للخطوات اليدوية (غالباً في كروم)
+                alert('لتثبيت التطبيق يدوياً: اضغط على النقاط الثلاث في كروم ← "إضافة إلى الشاشة الرئيسية"');
+            }
+        });
+
+        // محاولة بدء التشغيل التلقائي عند تحميل الصفحة (لن تعمل بسبب سياسة المتصفح لكننا نجرب)
         setTimeout(() => {
             if (!isRunning) {
-                statusText.innerText = '👆 اضغط على الزر الأخضر لتشغيل الكاميرا.';
+                statusText.innerText = '👆 اضغط على الزر الأخضر لبدء المعايرة.';
             }
-        }, 1000);
-
-        console.log('🚀 تطبيق معايرة السيارات جاهز. الخبير معك.');
+        }, 1500);
     })();
 </script>
 </body>
