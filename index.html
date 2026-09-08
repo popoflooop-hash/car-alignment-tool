@@ -3,145 +3,345 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#0a0f1e">
+    <meta name="theme-color" content="#0a0f1e" id="theme-color">
     <link rel="manifest" href="manifest.json">
     <title>معايرة زوايا السيارة - دليل تفاعلي</title>
     <style>
+        /* --- المتغيرات الأساسية --- */
+        :root {
+            /* ألوان سناب شات */
+            --snap-yellow: #FFFC00;
+            --snap-yellow-dark: #E6E600;
+            --snap-blue: #1A2A4A;
+            --snap-blue-light: #2A3A6A;
+            --snap-white: #FFFFFF;
+            --snap-black: #0D0D0D;
+            --snap-gray: #F5F5F5;
+            --snap-dark-gray: #1A1A1A;
+            
+            /* متغيرات الوضع الفاتح */
+            --bg-primary: var(--snap-gray);
+            --bg-secondary: var(--snap-white);
+            --text-primary: var(--snap-black);
+            --text-secondary: #333333;
+            --border-color: #E0E0E0;
+            --shadow-color: rgba(0,0,0,0.1);
+            --card-bg: var(--snap-white);
+            --progress-bg: #E0E0E0;
+            --status-bg: #F0F0F0;
+        }
+
+        /* --- الوضع المظلم --- */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-primary: var(--snap-black);
+                --bg-secondary: #1A1A1A;
+                --text-primary: var(--snap-white);
+                --text-secondary: #CCCCCC;
+                --border-color: #333333;
+                --shadow-color: rgba(255,255,255,0.05);
+                --card-bg: #262626;
+                --progress-bg: #333333;
+                --status-bg: #1A1A1A;
+            }
+        }
+
+        /* --- التبديل اليدوي (اختياري) --- */
+        .light-mode {
+            --bg-primary: var(--snap-gray);
+            --bg-secondary: var(--snap-white);
+            --text-primary: var(--snap-black);
+            --text-secondary: #333333;
+            --border-color: #E0E0E0;
+            --shadow-color: rgba(0,0,0,0.1);
+            --card-bg: var(--snap-white);
+            --progress-bg: #E0E0E0;
+            --status-bg: #F0F0F0;
+        }
+        .dark-mode {
+            --bg-primary: var(--snap-black);
+            --bg-secondary: #1A1A1A;
+            --text-primary: var(--snap-white);
+            --text-secondary: #CCCCCC;
+            --border-color: #333333;
+            --shadow-color: rgba(255,255,255,0.05);
+            --card-bg: #262626;
+            --progress-bg: #333333;
+            --status-bg: #1A1A1A;
+        }
+
+        /* --- التصميم العام --- */
         * { margin: 0; padding: 0; box-sizing: border-box; direction: rtl; }
         html, body {
             width: 100%; height: 100%; height: 100dvh; overflow: hidden;
-            background: #0a0f1e; font-family: 'Segoe UI', system-ui, sans-serif; color: #fff;
+            background: var(--bg-primary);
+            font-family: 'Segoe UI', -apple-system, system-ui, sans-serif;
+            color: var(--text-primary);
             position: fixed; top: 0; left: 0;
             display: flex; flex-direction: column;
+            transition: background 0.3s, color 0.3s;
         }
+
+        /* --- شريط التقدم (أصفر سناب) --- */
         #progress-bar {
             padding: 20px 20px 10px;
             display: flex; align-items: center; gap: 10px;
-            background: linear-gradient(180deg, #141b2b 0%, transparent 100%);
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
             z-index: 10;
+            transition: background 0.3s;
         }
-        #progress-text { font-size: 14px; font-weight: 600; color: #8e9aaf; min-width: 70px; }
-        .progress-track { flex: 1; height: 6px; background: #1a2233; border-radius: 10px; overflow: hidden; }
-        .progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #2563eb, #4fc3f7); border-radius: 10px; transition: width 0.5s; }
+        #progress-text {
+            font-size: 14px; font-weight: 600;
+            color: var(--text-secondary);
+            min-width: 70px;
+        }
+        .progress-track {
+            flex: 1; height: 6px;
+            background: var(--progress-bg);
+            border-radius: 10px; overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%; width: 0%;
+            background: var(--snap-yellow);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 10px rgba(255, 252, 0, 0.3);
+        }
+
+        /* --- عنوان الخطوة --- */
         #step-title {
-            font-size: 18px; font-weight: 700; padding: 5px 20px 0;
-            background: linear-gradient(135deg, #fff, #8e9aaf); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            font-size: 18px; font-weight: 700;
+            padding: 12px 20px 0;
+            color: var(--text-primary);
+            transition: color 0.3s;
         }
+
+        /* --- منطقة المحتوى --- */
         #content-area {
             flex: 1; padding: 10px 20px 5px; overflow-y: auto;
             display: flex; flex-direction: column;
+            gap: 10px;
         }
+
+        /* --- بطاقة الوصف --- */
         .step-description {
-            font-size: 15px; color: #c8d0dc; line-height: 1.6; margin-bottom: 12px;
-            background: rgba(255,255,255,0.04); padding: 14px; border-radius: 16px;
-            border-right: 4px solid #2563eb;
+            font-size: 15px; color: var(--text-secondary);
+            line-height: 1.6;
+            background: var(--card-bg);
+            padding: 14px 16px;
+            border-radius: 16px;
+            border-right: 4px solid var(--snap-yellow);
+            box-shadow: 0 2px 8px var(--shadow-color);
+            transition: background 0.3s, color 0.3s;
         }
+
+        /* --- الرسم التوضيحي (ASCII Art) --- */
         .visual-helper {
             display: flex; justify-content: center; align-items: center;
-            font-size: 70px; padding: 10px 0; background: rgba(255,255,255,0.02);
-            border-radius: 24px; border: 1px dashed rgba(255,255,255,0.1);
-            min-height: 120px; margin-bottom: 10px;
+            padding: 15px 10px;
+            background: var(--card-bg);
+            border-radius: 24px;
+            border: 1px solid var(--border-color);
+            min-height: 140px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.4;
+            white-space: pre;
+            color: var(--text-secondary);
+            direction: ltr;
+            transition: background 0.3s, border-color 0.3s;
+            overflow-x: auto;
+            box-shadow: 0 2px 8px var(--shadow-color);
         }
+        .visual-helper .highlight { color: var(--snap-yellow); font-weight: bold; }
+        .visual-helper .phone { color: #4FC3F7; }
+        .visual-helper .wheel { color: #FFB74D; }
+        .visual-helper .ground { color: #A1887F; }
+
+        /* --- عرض الزاوية --- */
         .angle-big {
-            font-size: 70px; font-weight: 800; font-family: 'Courier New', monospace;
-            text-align: center; padding: 10px 0; direction: ltr;
+            font-size: 70px; font-weight: 800;
+            font-family: 'Courier New', monospace;
+            text-align: center; padding: 10px 0;
+            direction: ltr;
             transition: color 0.2s;
+            background: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: 0 2px 8px var(--shadow-color);
         }
-        .angle-deg { font-size: 30px; font-weight: 300; color: #8e9aaf; }
+        .angle-deg { font-size: 30px; font-weight: 300; color: var(--text-secondary); }
+
+        /* --- القراءات الثانوية --- */
         .sub-reading {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 5px 0 15px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
         }
         .sub-card {
-            background: rgba(255,255,255,0.04); border-radius: 14px; padding: 10px; text-align: center;
+            background: var(--card-bg);
+            border-radius: 14px; padding: 10px; text-align: center;
+            box-shadow: 0 2px 8px var(--shadow-color);
+            transition: background 0.3s;
         }
-        .sub-label { font-size: 11px; color: #8e9aaf; }
+        .sub-label { font-size: 11px; color: var(--text-secondary); }
         .sub-value { font-size: 20px; font-weight: 700; font-family: 'Courier New', monospace; }
-        .value-beta { color: #4fc3f7; } .value-gamma { color: #ffb74d; }
+        .value-beta { color: #4FC3F7; }
+        .value-gamma { color: #FFB74D; }
 
-        .checklist {
-            background: rgba(255,255,255,0.03); border-radius: 16px; padding: 12px 16px;
-            margin: 10px 0; border: 1px solid rgba(255,255,255,0.06);
-        }
-        .checklist-item {
-            display: flex; align-items: center; gap: 12px; padding: 8px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
-            font-size: 14px; color: #c8d0dc;
-        }
-        .checklist-item:last-child { border-bottom: none; }
-        .check-icon { font-size: 22px; width: 30px; text-align: center; }
-
+        /* --- أزرار الإجراءات --- */
         .action-row {
-            display: flex; gap: 12px; margin: 10px 0;
+            display: flex; gap: 12px;
         }
         .action-btn {
-            padding: 14px 20px; border-radius: 60px; border: none; font-weight: 700; font-size: 16px;
+            padding: 14px 20px; border-radius: 60px; border: none;
+            font-weight: 700; font-size: 16px;
             cursor: pointer; transition: all 0.2s; flex: 1;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
         }
         .action-btn:active { transform: scale(0.95); }
-        .btn-tare { background: #f59e0b; color: #1a2233; box-shadow: 0 4px 20px rgba(245, 158, 11, 0.3); }
+        .btn-tare {
+            background: var(--snap-yellow); color: var(--snap-black);
+            box-shadow: 0 4px 20px rgba(255, 252, 0, 0.3);
+        }
         .btn-tare:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-        .btn-success { background: #10b981; color: white; box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4); }
-        .btn-primary { background: #2563eb; color: white; box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4); }
-        .btn-secondary { background: #2d3748; color: #e2e8f0; border: 1px solid #4a5568; }
+        .btn-success {
+            background: #10B981; color: white;
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+        }
+        .btn-primary {
+            background: var(--snap-blue); color: white;
+            box-shadow: 0 4px 20px rgba(26, 42, 74, 0.3);
+        }
+        .btn-secondary {
+            background: var(--card-bg); color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+        .btn-record {
+            background: #FF6B6B; color: white;
+            box-shadow: 0 4px 20px rgba(255, 107, 107, 0.3);
+        }
 
+        /* --- أزرار التنقل السفلية --- */
         #nav-buttons {
             padding: 15px 20px 25px;
             display: flex; gap: 12px; justify-content: space-between;
-            background: linear-gradient(0deg, #0a0f1e 60%, transparent);
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            transition: background 0.3s;
         }
         .nav-btn {
-            padding: 14px 24px; border-radius: 60px; border: none; font-weight: 700; font-size: 16px;
+            padding: 14px 24px; border-radius: 60px; border: none;
+            font-weight: 700; font-size: 16px;
             cursor: pointer; transition: all 0.2s; flex: 1;
             display: flex; align-items: center; justify-content: center; gap: 8px;
         }
         .nav-btn:active { transform: scale(0.95); }
         .nav-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-        #nav-back { flex: 0.5; } #nav-next { flex: 1.5; }
+        #nav-back { flex: 0.5; }
 
+        /* --- رسالة الحالة --- */
         .status-msg {
-            text-align: center; font-size: 12px; color: #6a7a8e; padding: 6px;
-            min-height: 30px; border-top: 1px solid rgba(255,255,255,0.03);
+            text-align: center; font-size: 12px;
+            color: var(--text-secondary); padding: 6px;
+            min-height: 30px;
+            background: var(--status-bg);
+            border-top: 1px solid var(--border-color);
+            transition: background 0.3s, color 0.3s;
         }
+
+        /* --- شارة التأكيد --- */
         .tare-done-badge {
-            background: #10b981; color: white; padding: 4px 12px; border-radius: 40px;
-            font-size: 12px; font-weight: 600; display: inline-block; margin: 5px 0;
+            background: #10B981; color: white;
+            padding: 4px 12px; border-radius: 40px;
+            font-size: 12px; font-weight: 600;
+            display: inline-block;
         }
+
+        /* --- قائمة التدقيق --- */
+        .checklist {
+            background: var(--card-bg);
+            border-radius: 16px; padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 8px var(--shadow-color);
+            transition: background 0.3s;
+        }
+        .checklist-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px; color: var(--text-secondary);
+        }
+        .checklist-item:last-child { border-bottom: none; }
+        .check-icon { font-size: 22px; width: 30px; text-align: center; }
+
+        /* --- زر تبديل الوضع --- */
+        #theme-toggle {
+            position: fixed; bottom: 90px; right: 15px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 48px; height: 48px;
+            font-size: 22px;
+            cursor: pointer;
+            z-index: 100;
+            box-shadow: 0 4px 15px var(--shadow-color);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #theme-toggle:active { transform: scale(0.9); }
 
         @media (max-width: 450px) {
             .angle-big { font-size: 50px; }
-            .visual-helper { font-size: 50px; min-height: 80px; }
+            .visual-helper { font-size: 12px; min-height: 100px; padding: 10px; }
             .nav-btn { font-size: 14px; padding: 12px 16px; }
             .action-btn { font-size: 14px; padding: 12px 16px; }
+            #theme-toggle { width: 40px; height: 40px; font-size: 18px; bottom: 80px; right: 10px; }
         }
     </style>
 </head>
 <body>
 
+    <!-- شريط التقدم -->
     <div id="progress-bar">
         <span id="progress-text">الخطوة 0/6</span>
         <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
     </div>
     <div id="step-title">📋 تعليمات ما قبل البدء</div>
 
+    <!-- منطقة المحتوى -->
     <div id="content-area">
         <div id="step-content"></div>
     </div>
 
+    <!-- أزرار التنقل -->
     <div id="nav-buttons">
         <button class="nav-btn btn-secondary" id="nav-back">↩ رجوع</button>
         <button class="nav-btn btn-primary" id="nav-next">التالي ➜</button>
     </div>
     <div class="status-msg" id="status-msg">💡 اتبع الخطوات بالترتيب للحصول على أفضل النتائج</div>
 
+    <!-- زر تبديل الوضع -->
+    <button id="theme-toggle">🌙</button>
+
 <script>
     (function() {
-        // --- بيانات الخطوات ---
+        // --- بيانات الخطوات مع الرسوم التوضيحية ---
         const steps = [
             {
                 id: 'intro',
                 title: '📋 تعليمات ما قبل البدء',
                 desc: 'اقرأ التعليمات جيداً، ثم اضغط "بدء القياس" للانتقال للخطوة التالية.',
-                visual: '🛠️',
+                visual: `
+┌─────────────────────────┐
+│  🛠️  تجهيز السيارة     │
+│                         │
+│  🚗 السيارة على أرض    │
+│     مستوية              │
+│  🔧 ضغط الإطارات صحيح  │
+│  🛑 فرامل اليد مشدودة  │
+│  📱 جهز الهاتف          │
+└─────────────────────────┘`,
                 checklist: [
                     { icon: '✅', text: 'السيارة على أرض مستوية (موقف البيت أو الشارع المسطح).' },
                     { icon: '✅', text: 'تأكد من أن ضغط الإطارات مطابق للتوصيات.' },
@@ -150,42 +350,112 @@
                 ]
             },
             {
+                id: 'ground',
+                title: '🧭 الخطوة 0: قياس مستوى الأرض',
+                desc: 'ضع الهاتف على الأرض بجانب العجلة الأمامية اليمنى (كما في الصورة). اضغط "تسجيل" لتخزين القراءة.',
+                visual: `
+┌─────────────────────────────────┐
+│          ⚙️                     │
+│          ⚙️ (الجنط)            │
+│          ⚙️                     │
+│  ┌──┐    ⚙️                     │
+│  │📱│    ⚙️                     │
+│  └──┘    ⚙️                     │
+│  (هاتف)                         │
+│  🟫🟫🟫🟫🟫🟫🟫🟫🟫🟫🟫🟫  │
+│  🟫 (الأرض) 🟫                  │
+└─────────────────────────────────┘`,
+                showAngle: true,
+                hasRecordButton: true,
+                side: 'ground'
+            },
+            {
                 id: 'tare',
                 title: '🎯 الخطوة 1: معايرة الصفر (Tare)',
-                desc: 'ضع الهاتف مسطحاً على أرضية السيارة الداخلية (بجانب المقعد) أو على عتبة الباب المعدنية. ثم اضغط زر "معايرة الصفر" لتحديد مستوى الأرض.',
-                visual: '📱',
+                desc: 'ضع الهاتف مسطحاً على أرضية السيارة الداخلية (بجانب المقعد) كما في الصورة. ثم اضغط زر "معايرة الصفر".',
+                visual: `
+┌─────────────────────────────────┐
+│  🪑 مقعد السيارة               │
+│  ┌────────────────────────┐    │
+│  │  🟫🟫🟫🟫🟫🟫🟫🟫🟫   │    │
+│  │  🟫  ┌──┐  🟫          │    │
+│  │  🟫  │📱│  🟫 (أرضية  │    │
+│  │  🟫  └──┘  🟫  السيارة)│    │
+│  │  🟫🟫🟫🟫🟫🟫🟫🟫🟫   │    │
+│  └────────────────────────┘    │
+└─────────────────────────────────┘`,
                 showAngle: true,
                 hasTareButton: true
             },
             {
                 id: 'fr',
                 title: '🚗 الخطوة 2: قياس العجلة الأمامية اليمنى (FR)',
-                desc: 'ضع الهاتف عمودياً على الجنط المعدني للعجلة الأمامية اليمنى (جهة الراكب). تأكد من التصاقه بالمعدن وعدم وجود أوساخ.',
-                visual: '↗️',
+                desc: 'ضع الهاتف عمودياً على الجنط المعدني للعجلة الأمامية اليمنى (جهة الراكب). تأكد من استقامة الهاتف كما في الصورة.',
+                visual: `
+┌─────────────────────────────────┐
+│         ⚙️                      │
+│         ⚙️ (الجنط)    ┌──┐    │
+│         ⚙️             │📱│    │
+│         ⚙️             └──┘    │
+│         ⚙️   (الهاتف عمودي)   │
+│         ⚙️                      │
+│  🟫🟫🟫🟫🟫🟫🟫🟫🟫🟫🟫  │
+│  🟫 (الأرض) 🟫                  │
+└─────────────────────────────────┘`,
                 showAngle: true,
                 side: 'fr'
             },
             {
                 id: 'fl',
                 title: '🚗 الخطوة 3: قياس العجلة الأمامية اليسرى (FL)',
-                desc: 'ضع الهاتف عمودياً على الجنط المعدني للعجلة الأمامية اليسرى (جهة السائق). نفس الطريقة، تأكد من الاستقامة.',
-                visual: '↖️',
+                desc: 'ضع الهاتف عمودياً على الجنط المعدني للعجلة الأمامية اليسرى (جهة السائق). نفس الطريقة كما في الصورة.',
+                visual: `
+┌─────────────────────────────────┐
+│         ⚙️                      │
+│         ⚙️ (الجنط)    ┌──┐    │
+│         ⚙️             │📱│    │
+│         ⚙️             └──┘    │
+│         ⚙️   (الهاتف عمودي)   │
+│         ⚙️                      │
+│  🟫🟫🟫🟫🟫🟫🟫🟫🟫🟫🟫  │
+│  🟫 (الأرض) 🟫                  │
+└─────────────────────────────────┘`,
                 showAngle: true,
                 side: 'fl'
             },
             {
                 id: 'rr',
                 title: '🚙 الخطوة 4: قياس العجلة الخلفية اليمنى (RR) - اختياري',
-                desc: 'للحصول على تقرير كامل، ضع الهاتف على الجنط الخلفي الأيمن. يمكنك تخطي هذه الخطوة إذا أردت.',
-                visual: '🔽',
+                desc: 'ضع الهاتف عمودياً على الجنط الخلفي الأيمن. يمكنك تخطي هذه الخطوة إذا أردت.',
+                visual: `
+┌─────────────────────────────────┐
+│         ⚙️                      │
+│         ⚙️ (الجنط)    ┌──┐    │
+│         ⚙️             │📱│    │
+│         ⚙️             └──┘    │
+│         ⚙️   (الهاتف عمودي)   │
+│         ⚙️                      │
+│  🟫🟫🟫🟫🟫🟫🟫🟫🟫🟫🟫  │
+│  🟫 (الأرض) 🟫                  │
+└─────────────────────────────────┘`,
                 showAngle: true,
                 side: 'rr'
             },
             {
                 id: 'rl',
                 title: '🚙 الخطوة 5: قياس العجلة الخلفية اليسرى (RL) - اختياري',
-                desc: 'ضع الهاتف على الجنط الخلفي الأيسر. هذه آخر قراءة اختيارية.',
-                visual: '🔄',
+                desc: 'ضع الهاتف عمودياً على الجنط الخلفي الأيسر. هذه آخر قراءة اختيارية.',
+                visual: `
+┌─────────────────────────────────┐
+│         ⚙️                      │
+│         ⚙️ (الجنط)    ┌──┐    │
+│         ⚙️             │📱│    │
+│         ⚙️             └──┘    │
+│         ⚙️   (الهاتف عمودي)   │
+│         ⚙️                      │
+│  🟫🟫🟫🟫🟫🟫🟫🟫🟫🟫🟫  │
+│  🟫 (الأرض) 🟫                  │
+└─────────────────────────────────┘`,
                 showAngle: true,
                 side: 'rl'
             },
@@ -193,18 +463,27 @@
                 id: 'report',
                 title: '📊 التقرير النهائي',
                 desc: 'إليك ملخص جميع القراءات المسجلة مع تقييم أولي لكل زاوية.',
-                visual: '📈',
+                visual: `
+┌─────────────────────────┐
+│  📈  التقرير النهائي   │
+│                         │
+│  ✅ FR: +1.2° (ممتاز) │
+│  ⚠️ FL: +2.5° (انتباه)│
+│  🔴 RR: -3.0° (ضبط)   │
+│  ✅ RL: +1.0° (ممتاز) │
+└─────────────────────────┘`,
                 isReport: true
             }
         ];
 
         // --- متغيرات التطبيق ---
         let currentStep = 0;
-        let readings = { fr: null, fl: null, rr: null, rl: null };
+        let readings = { ground: null, fr: null, fl: null, rr: null, rl: null };
         let tareOffset = { beta: 0, gamma: 0 };
         let rawBeta = 0, rawGamma = 0;
         let isSensorActive = false;
         let tareDone = false;
+        let groundReadings = [];
 
         // --- عناصر DOM ---
         const stepContent = document.getElementById('step-content');
@@ -214,6 +493,27 @@
         const navBack = document.getElementById('nav-back');
         const navNext = document.getElementById('nav-next');
         const statusMsg = document.getElementById('status-msg');
+        const themeToggle = document.getElementById('theme-toggle');
+
+        // --- تبديل الوضع ---
+        let isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            document.body.classList.toggle('light-mode', !isDarkMode);
+            document.body.classList.toggle('dark-mode', isDarkMode);
+            themeToggle.textContent = isDarkMode ? '☀️' : '🌙';
+            // تحديث لون شريط الحالة
+            document.getElementById('theme-color').content = isDarkMode ? '#0D0D0D' : '#F5F5F5';
+        }
+        themeToggle.addEventListener('click', toggleTheme);
+        // تطبيق الوضع الافتراضي
+        if (isDarkMode) {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        } else {
+            document.body.classList.add('light-mode');
+            themeToggle.textContent = '🌙';
+        }
 
         // --- دوال مساعدة ---
         function getDisplayAngle() {
@@ -224,9 +524,9 @@
 
         function angleColor(angle) {
             const abs = Math.abs(angle);
-            if (abs < 1.0) return '#4fc3f7';
-            if (abs < 2.0) return '#f59e0b';
-            return '#ef4444';
+            if (abs < 1.0) return '#4FC3F7';
+            if (abs < 2.0) return '#FFB74D';
+            return '#FF6B6B';
         }
 
         function formatAngle(angle) {
@@ -240,19 +540,17 @@
             const step = steps[index];
             if (!step) return;
 
-            // تحديث شريط التقدم
             const total = steps.length - 1;
             progressText.textContent = `الخطوة ${index}/${total}`;
             progressFill.style.width = `${(index / total) * 100}%`;
             stepTitle.textContent = step.title;
 
-            // بناء محتوى الخطوة
             let html = '';
 
             // الوصف
             html += `<div class="step-description">${step.desc}</div>`;
 
-            // المساعد البصري
+            // الرسم التوضيحي
             if (step.visual) {
                 html += `<div class="visual-helper">${step.visual}</div>`;
             }
@@ -278,7 +576,20 @@
                 `;
             }
 
-            // زر المعايرة (في خطوة Tare فقط)
+            // زر تسجيل الأرض
+            if (step.hasRecordButton) {
+                const isRecorded = readings.ground !== null;
+                html += `
+                    <div class="action-row">
+                        <button class="action-btn btn-record" id="record-btn">
+                            ${isRecorded ? '✅ تم التسجيل' : '📝 تسجيل قراءة الأرض'}
+                        </button>
+                    </div>
+                    ${isRecorded ? `<div style="text-align:center;color:#10B981;">✅ تم تسجيل: ${formatAngle(readings.ground)}</div>` : ''}
+                `;
+            }
+
+            // زر المعايرة
             if (step.hasTareButton) {
                 html += `
                     <div class="action-row">
@@ -290,7 +601,7 @@
                 `;
             }
 
-            // قائمة التدقيق (للخطوة الأولى)
+            // قائمة التدقيق
             if (step.checklist) {
                 html += `<div class="checklist">`;
                 step.checklist.forEach(item => {
@@ -312,7 +623,7 @@
                     const val = readings[r.key];
                     const display = val !== null ? formatAngle(val) : 'لم تقاس';
                     const color = val !== null ? angleColor(val) : '#6a7a8e';
-                    const icon = val !== null ? '✅' : '⬜';
+                    const icon = val !== null ? (Math.abs(val) < 1.5 ? '✅' : Math.abs(val) < 2.5 ? '⚠️' : '🔴') : '⬜';
                     html += `
                         <div class="checklist-item">
                             <span class="check-icon">${icon}</span>
@@ -323,32 +634,28 @@
                 html += `</div>`;
                 if (readings.fr !== null && readings.fl !== null) {
                     const diff = Math.abs(readings.fr - readings.fl);
-                    html += `<div class="step-description" style="border-right-color:#f59e0b;text-align:center;">
+                    html += `<div class="step-description" style="border-right-color:#FFB74D;text-align:center;">
                         🔍 الفرق بين الأماميتين: <strong>${diff.toFixed(2)}°</strong>
                         ${diff < 0.8 ? ' ✅ ممتاز (الفرق ضمن الحد المسموح)' : ' ⚠️ يفضل مراجعة ميكانيكي (الفرق كبير)'}
-                    </div>`;
-                }
-                if (readings.fr === null && readings.fl === null) {
-                    html += `<div class="step-description" style="border-right-color:#ef4444;text-align:center;">
-                        ⚠️ لم يتم تسجيل أي قراءة للعجلات الأمامية. أعد القياس من البداية.
                     </div>`;
                 }
             }
 
             stepContent.innerHTML = html;
 
-            // ربط أزرار المعايرة
+            // ربط الأزرار
+            if (step.hasRecordButton) {
+                const recordBtn = document.getElementById('record-btn');
+                if (recordBtn) recordBtn.addEventListener('click', recordGround);
+            }
             if (step.hasTareButton) {
                 const tareBtn = document.getElementById('tare-action-btn');
-                if (tareBtn) {
-                    tareBtn.addEventListener('click', performTare);
-                }
+                if (tareBtn) tareBtn.addEventListener('click', performTare);
             }
 
             // تحديث أزرار التنقل
             navBack.style.display = index === 0 ? 'none' : 'flex';
             
-            // تحديث زر "التالي"
             if (step.id === 'intro') {
                 navNext.textContent = '🚀 بدء القياس';
                 navNext.className = 'nav-btn btn-success';
@@ -361,8 +668,12 @@
                 navNext.textContent = tareDone ? '✅ متابعة ➜' : '⏳ انتظر المعايرة...';
                 navNext.className = `nav-btn ${tareDone ? 'btn-primary' : 'btn-secondary'}`;
                 navNext.disabled = !tareDone;
+            } else if (step.id === 'ground') {
+                const isRecorded = readings.ground !== null;
+                navNext.textContent = isRecorded ? '✅ متابعة ➜' : '⏳ سجل الأرض أولاً';
+                navNext.className = `nav-btn ${isRecorded ? 'btn-primary' : 'btn-secondary'}`;
+                navNext.disabled = !isRecorded;
             } else {
-                // خطوات القياس
                 const side = step.side;
                 const isMeasured = side && readings[side] !== null;
                 navNext.textContent = isMeasured ? '✅ تم القياس، تابع ➜' : '📐 تأكيد القراءة';
@@ -372,6 +683,7 @@
 
             // تحديث رسالة الحالة
             if (index === 0) statusMsg.textContent = '📖 اقرأ التعليمات جيداً قبل البدء';
+            else if (step.id === 'ground') statusMsg.textContent = readings.ground !== null ? '✅ تم تسجيل الأرض' : '📱 ضع الهاتف على الأرض بجانب العجلة';
             else if (step.id === 'tare') statusMsg.textContent = tareDone ? '✅ تمت المعايرة، انتقل للخطوة التالية.' : '📱 ضع الهاتف على سطح مستوٍ ثم اضغط "معايرة الصفر"';
             else if (step.showAngle) statusMsg.textContent = '📐 ضع الهاتف عمودياً على الجنط كما هو موضح';
             else statusMsg.textContent = '💡 اتبع الخطوات بالترتيب للحصول على أفضل النتائج';
@@ -383,7 +695,6 @@
             rawBeta = event.beta || 0;
             rawGamma = event.gamma || 0;
             isSensorActive = true;
-            // إعادة عرض الخطوة الحالية لتحديث الأرقام
             const currentStepObj = steps[currentStep];
             if (currentStepObj && currentStepObj.showAngle) {
                 renderStep(currentStep);
@@ -411,7 +722,18 @@
             }
         }
 
-        // --- دوال المعايرة والقراءات ---
+        // --- دوال الإجراءات ---
+        function recordGround() {
+            if (!isSensorActive) {
+                statusMsg.textContent = '⚠️ انتظر حتى تظهر القراءات أولاً.';
+                return;
+            }
+            const { beta } = getDisplayAngle();
+            readings.ground = beta;
+            statusMsg.textContent = `✅ تم تسجيل مستوى الأرض: ${formatAngle(beta)}`;
+            renderStep(currentStep);
+        }
+
         function performTare() {
             if (!isSensorActive) {
                 statusMsg.textContent = '⚠️ انتظر حتى تظهر القراءات أولاً.';
@@ -429,7 +751,6 @@
             readings[side] = beta;
             statusMsg.textContent = `✅ تم تسجيل قراءة ${side.toUpperCase()}: ${formatAngle(beta)}`;
             renderStep(currentStep);
-            // الانتقال التلقائي بعد التأكيد
             setTimeout(() => {
                 if (currentStep < steps.length - 1) {
                     goToStep(currentStep + 1);
@@ -448,42 +769,44 @@
             const step = steps[currentStep];
             if (!step) return;
 
-            // الخطوة الأولى: بدء القياس
             if (step.id === 'intro') {
                 goToStep(1);
                 return;
             }
 
-            // خطوة المعايرة
-            if (step.id === 'tare') {
-                if (!tareDone) {
-                    statusMsg.textContent = '⚠️ يجب معايرة الصفر أولاً بالضغط على الزر الموجود في منتصف الشاشة.';
+            if (step.id === 'ground') {
+                if (readings.ground === null) {
+                    statusMsg.textContent = '⚠️ يجب تسجيل قراءة الأرض أولاً.';
                     return;
                 }
                 goToStep(currentStep + 1);
                 return;
             }
 
-            // خطوات القياس
+            if (step.id === 'tare') {
+                if (!tareDone) {
+                    statusMsg.textContent = '⚠️ يجب معايرة الصفر أولاً بالضغط على الزر الأصفر.';
+                    return;
+                }
+                goToStep(currentStep + 1);
+                return;
+            }
+
             if (['fr', 'fl', 'rr', 'rl'].includes(step.id)) {
                 const side = step.side;
                 if (readings[side] === null) {
-                    // تأكيد القراءة الحالية
                     confirmReading(side);
                 } else {
-                    // الانتقال للخطوة التالية إذا كانت القراءة مسجلة
                     if (currentStep < steps.length - 1) goToStep(currentStep + 1);
                 }
                 return;
             }
 
-            // التقرير النهائي: إعادة الضبط
             if (step.isReport) {
                 resetAll();
                 return;
             }
 
-            // الانتقال العادي
             if (currentStep < steps.length - 1) {
                 goToStep(currentStep + 1);
             }
@@ -492,9 +815,12 @@
         function handleBack() {
             if (currentStep > 0) {
                 const prevStep = steps[currentStep - 1];
-                // لا نسمح بالرجوع إلى خطوة المعايرة إذا تمت
                 if (prevStep && prevStep.id === 'tare' && tareDone) {
                     statusMsg.textContent = '⚠️ لا يمكن الرجوع إلى خطوة المعايرة بعد إتمامها.';
+                    return;
+                }
+                if (prevStep && prevStep.id === 'ground' && readings.ground !== null) {
+                    statusMsg.textContent = '⚠️ لا يمكن الرجوع إلى خطوة الأرض بعد تسجيلها.';
                     return;
                 }
                 goToStep(currentStep - 1);
@@ -502,7 +828,7 @@
         }
 
         function resetAll() {
-            readings = { fr: null, fl: null, rr: null, rl: null };
+            readings = { ground: null, fr: null, fl: null, rr: null, rl: null };
             tareOffset = { beta: 0, gamma: 0 };
             tareDone = false;
             statusMsg.textContent = '🔄 تم إعادة الضبط. ابدأ من البداية.';
@@ -528,7 +854,7 @@
             } catch (e) {}
         }, { once: true });
 
-        console.log('🚀 دليل معايرة السيارات التفاعلي (المصحح) جاهز!');
+        console.log('🚀 دليل معايرة السيارات - نسخة سناب شات جاهزة!');
     })();
 </script>
 </body>
