@@ -122,13 +122,12 @@
             display: flex; align-items: center; justify-content: center;
         }
 
-        /* --- تصميم ميزان المياه الجديد (SVG) --- */
-        .gauge-container { background: var(--card-bg); border-radius: 16px; padding: 10px; box-shadow: 0 2px 8px var(--shadow-color); }
-        .gauge-svg { width: 100%; height: auto; }
-        .bubble-glass { fill: #8BC34A; stroke: #33691E; stroke-width: 2; filter: drop-shadow(0 0 5px rgba(139, 195, 74, 0.8)); }
+        /* --- SVG Gauges IDs --- */
+        .bubble-glass { fill: #8BC34A; stroke: #33691E; stroke-width: 2; }
         .bubble-highlight { fill: #fff; opacity: 0.6; }
+        .bubble-circle { fill: #66BB6A; stroke: #2E7D32; stroke-width: 2; }
 
-        /* --- تصميم الرسم البياني الدائري --- */
+        /* --- الرسم البياني --- */
         .chart-container { background: var(--card-bg); border-radius: 16px; padding: 15px; margin-bottom: 15px; text-align: center; }
         .chart-title { font-weight: 800; margin-bottom: 15px; }
         .chart-svg { width: 100%; max-width: 300px; height: auto; }
@@ -181,12 +180,11 @@
 
 <script>
     (function() {
-        // ... (البيانات والمصفوفات السابقة كما هي ... )
         const steps = [
             { id: 'intro', title: '📋 تعليمات ما قبل البدء', desc: 'اقرأ التعليمات جيداً، ثم اضغط "بدء القياس".', 
               visual: `┌─────────────────────────┐\n│  🛠️  تجهيز السيارة     │\n│                         │\n│  🚗 على أرض مستوية    │\n│  🔧 ضغط الإطارات صحيح  │\n│  🛑 فرامل اليد مشدودة  │\n└─────────────────────────┘`, 
               checklist: [ { icon: '✅', text: 'السيارة على أرض مستوية.' }, { icon: '✅', text: 'ضغط الإطارات صحيح.' }, { icon: '✅', text: 'أطفئ المحرك واشدد الفرامل.' } ] },
-            { id: 'ground', title: '🧭 الخطوة 1: قياس مستوى الأرض', desc: 'ضع الهاتف على الأرض بجانب العجلة. اضغط "تسجيل" لتخزين القراءة.', visual: `┌────────────────┐\n│  📱 (هاتف)     │\n│  🟫🟫🟫🟫🟫🟫    │\n│  🟫 (الأرض) 🟫  │\n└────────────────┘`, showAngle: true, hasRecordButton: true },
+            { id: 'ground', title: '🧭 الخطوة 1: قياس مستوى الأرض', desc: 'ضع الهاتف على الأرض بجانب العجلة. **لاحظ حركة الفقاعة!** اضغط "تسجيل" لتخزين القراءة.', visual: `┌────────────────┐\n│  📱 (هاتف)     │\n│  🟫🟫🟫🟫🟫🟫    │\n│  🟫 (الأرض) 🟫  │\n└────────────────┘`, showAngle: true, hasRecordButton: true },
             { id: 'tare', title: '🎯 الخطوة 2: معايرة الصفر (Tare)', desc: 'ضع الهاتف مسطحاً على أرضية السيارة، ثم اضغط "معايرة الصفر".', visual: `┌──────────────┐\n│  🪑 مقعد      │\n│  ┌────┐      │\n│  │📱│ أرضية  │\n│  └────┘      │\n└──────────────┘`, showAngle: true, hasTareButton: true },
             { id: 'fr', title: '🚗 الخطوة 3: قياس الأمامية اليمنى (FR)', desc: 'ضع الهاتف عمودياً على الجنط.', visual: `┌────────────────┐\n│ ⚙️ (جنط) 📱    │\n│  (عمودي)       │\n└────────────────┘`, showAngle: true, side: 'fr' },
             { id: 'fl', title: '🚗 الخطوة 4: قياس الأمامية اليسرى (FL)', desc: 'ضع الهاتف عمودياً على الجنط.', visual: `┌────────────────┐\n│ ⚙️ (جنط) 📱    │\n│  (عمودي)       │\n└────────────────┘`, showAngle: true, side: 'fl' },
@@ -214,7 +212,7 @@
         const modalCancel = document.getElementById('modal-cancel');
         const modalContinue = document.getElementById('modal-continue');
 
-        // --- إصلاح الوضع الليلي/النهاري ---
+        // --- الوضع الليلي ---
         function updateThemeIcon() {
             const isDark = document.body.getAttribute('data-theme') === 'dark';
             themeToggle.textContent = isDark ? '☀️' : '🌙';
@@ -228,7 +226,6 @@
             updateThemeIcon();
         });
 
-        // تهيئة الوضع الافتراضي
         if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
             document.body.setAttribute('data-theme', 'dark');
         } else {
@@ -252,31 +249,26 @@
             return `${angle >= 0 ? '+' : ''}${angle.toFixed(2)}°`;
         }
 
-        // --- تصميم ميزان المياه الجديد (يشبه الصورة) ---
+        // --- إنشاء ميزان المياه الأنبوبي مع معرفات (IDs) للتحديث المباشر ---
         function renderLevelBubble(angle, label = 'مستوى الأرض') {
-            // يتم رسم أنبوب أفقي بفقاعة تتحرك
             const max = 5;
             const clamped = Math.max(-max, Math.min(max, angle));
-            const xPos = 50 + (clamped / max) * 40; // من 10% إلى 90%
+            const xPos = 50 + (clamped / max) * 40; 
+            const color = angleColor(angle);
             
             return `
             <div class="gauge-container">
                 <div style="text-align:center;font-weight:bold;margin-bottom:5px;">${label}</div>
-                <svg class="gauge-svg" viewBox="0 0 200 60">
-                    <!-- خلفية الأنبوب -->
+                <svg class="gauge-svg" viewBox="0 0 200 60" id="level-gauge">
                     <rect x="10" y="20" width="180" height="20" rx="10" fill="#c8e6c9" stroke="#2e7d32" stroke-width="2"/>
-                    <!-- خطوط التدريج -->
                     <line x1="50" y1="18" x2="50" y2="42" stroke="#2e7d32" stroke-width="1"/>
                     <line x1="90" y1="18" x2="90" y2="42" stroke="#2e7d32" stroke-width="1"/>
                     <line x1="110" y1="18" x2="110" y2="42" stroke="#2e7d32" stroke-width="1"/>
                     <line x1="150" y1="18" x2="150" y2="42" stroke="#2e7d32" stroke-width="1"/>
                     <line x1="100" y1="15" x2="100" y2="45" stroke="#2e7d32" stroke-width="3"/>
                     
-                    <!-- الفقاعة الخضراء اللامعة -->
-                    <circle cx="${xPos}" cy="30" r="12" fill="#66BB6A" stroke="#2E7D32" stroke-width="2">
-                        <animate attributeName="cx" values="${xPos};${xPos};${xPos}" dur="0.1s" repeatCount="indefinite" />
-                    </circle>
-                    <circle cx="${xPos-4}" cy="25" r="3" fill="#fff" opacity="0.7"/>
+                    <circle id="level-bubble" cx="${xPos}" cy="30" r="12" class="bubble-circle" fill="${color}" stroke="#2E7D32" stroke-width="2"/>
+                    <circle id="level-highlight" cx="${xPos-4}" cy="25" r="3" fill="#fff" opacity="0.7"/>
                     
                     <text x="50" y="55" font-size="10" fill="#666" text-anchor="middle">-</text>
                     <text x="100" y="55" font-size="10" fill="#666" text-anchor="middle">0</text>
@@ -285,31 +277,29 @@
             </div>`;
         }
 
-        // --- تصميم ميزان الدائري (قرص كبير للعجلات) ---
+        // --- إنشاء القرص الدائري مع معرفات (IDs) ---
         function renderCircularGauge(angle, label = 'زاوية الميل') {
             const max = 5;
             const clamped = Math.max(-max, Math.min(max, angle));
-            // تحويل الزاوية إلى إزاحة في القرص (0 في المنتصف)
             const radius = Math.abs(clamped) / max * 80; 
             const x = 100 + (clamped >= 0 ? radius : -radius);
             const y = 100;
+            const color = angleColor(angle);
             
             return `
             <div class="gauge-container">
                 <div style="text-align:center;font-weight:bold;margin-bottom:5px;">${label}</div>
-                <svg class="gauge-svg" viewBox="0 0 200 200">
+                <svg class="gauge-svg" viewBox="0 0 200 200" id="circular-gauge">
                     <defs>
                         <radialGradient id="grad1" cx="50%" cy="50%" r="50%">
                             <stop offset="0%" stop-color="#fff" />
                             <stop offset="100%" stop-color="#e0e0e0" />
                         </radialGradient>
                     </defs>
-                    <!-- قاعدة القرص -->
                     <circle cx="100" cy="100" r="95" fill="url(#grad1)" stroke="#333" stroke-width="4"/>
                     <circle cx="100" cy="100" r="80" fill="none" stroke="#eee" stroke-width="1"/>
                     <circle cx="100" cy="100" r="50" fill="none" stroke="#eee" stroke-width="1"/>
                     
-                    <!-- علامات التدرج -->
                     <line x1="100" y1="5" x2="100" y2="15" stroke="#333" stroke-width="3"/>
                     <line x1="100" y1="185" x2="100" y2="195" stroke="#333" stroke-width="3"/>
                     <line x1="5" y1="100" x2="15" y2="100" stroke="#333" stroke-width="3"/>
@@ -325,16 +315,13 @@
                     <text x="15" y="104" font-size="12" fill="#333" text-anchor="middle">-</text>
                     <text x="185" y="104" font-size="12" fill="#333" text-anchor="middle">+</text>
 
-                    <!-- الفقاعة (كرة خضراء) -->
-                    <circle cx="${x}" cy="${y}" r="15" fill="#66BB6A" stroke="#2E7D32" stroke-width="3">
-                        <animate attributeName="cx" values="${x};${x};${x}" dur="0.1s" repeatCount="indefinite" />
-                    </circle>
-                    <circle cx="${x-4}" cy="${y-4}" r="4" fill="#fff" opacity="0.7"/>
+                    <circle id="circular-bubble" cx="${x}" cy="${y}" r="15" class="bubble-circle" fill="${color}" stroke="#2E7D32" stroke-width="3"/>
+                    <circle id="circular-highlight" cx="${x-4}" cy="${y-4}" r="4" fill="#fff" opacity="0.7"/>
                 </svg>
             </div>`;
         }
 
-        // --- الرسم البياني الدائري العصري (Polar/Radar) ---
+        // --- الرسم البياني الدائري (ثابت) ---
         function renderChart(data, warningMessage) {
             let svgParts = `<circle cx="100" cy="100" r="90" fill="none" stroke="#eee" stroke-width="1" />`;
             svgParts += `<circle cx="100" cy="100" r="60" fill="none" stroke="#eee" stroke-width="1" />`;
@@ -345,17 +332,14 @@
                 const val = r.value !== null ? r.value : 0;
                 const maxAbs = 5;
                 const radius = (Math.abs(val) / maxAbs) * 90;
-                const angleRad = (i * 90) * (Math.PI / 180); 
-                // نقاط موزعة على شكل صليب (أعلى، أسفل، يمين، يسار)
                 let x = 100, y = 100;
-                if (i === 0) y = 100 - radius; // FR (أعلى)
-                if (i === 1) y = 100 + radius; // FL (أسفل)
-                if (i === 2) x = 100 + radius; // RR (يمين)
-                if (i === 3) x = 100 - radius; // RL (يسار)
+                if (i === 0) y = 100 - radius;
+                if (i === 1) y = 100 + radius;
+                if (i === 2) x = 100 + radius;
+                if (i === 3) x = 100 - radius;
                 
                 const color = angleColor(val);
                 svgParts += `<circle cx="${x}" cy="${y}" r="10" fill="${color}" stroke="#fff" stroke-width="2" />`;
-                // خطوط توصيل
                 svgParts += `<line x1="100" y1="100" x2="${x}" y2="${y}" stroke="${color}" stroke-width="2" stroke-dasharray="4,4" opacity="0.6"/>`;
             });
 
@@ -365,6 +349,51 @@
                 html += `<div class="step-description" style="border-right-color:#FF6B6B;background:#FFE5E5;color:#c0392b;font-size:14px;margin-top:10px;"><strong>⚠️ تنبيه:</strong> ${warningMessage}</div>`;
             }
             return html;
+        }
+
+        // --- دالة تحديث العناصر المباشرة (تسمى من الحساسات) ---
+        function updateDynamicGauges() {
+            // 1. تحديث ميزان الأنبوب (إذا كان في خطوة الأرض)
+            const levelBubble = document.getElementById('level-bubble');
+            const levelHighlight = document.getElementById('level-highlight');
+            if (levelBubble) {
+                const { beta } = getDisplayAngle();
+                const clamped = Math.max(-5, Math.min(5, beta));
+                const xPos = 50 + (clamped / 5) * 40;
+                const color = angleColor(beta);
+                
+                levelBubble.setAttribute('cx', xPos);
+                levelBubble.setAttribute('fill', color);
+                if (levelHighlight) levelHighlight.setAttribute('cx', xPos - 4);
+            }
+
+            // 2. تحديث القرص الدائري (إذا كان في خطوات العجلات)
+            const circularBubble = document.getElementById('circular-bubble');
+            const circularHighlight = document.getElementById('circular-highlight');
+            if (circularBubble) {
+                const { beta } = getDisplayAngle();
+                const clamped = Math.max(-5, Math.min(5, beta));
+                const radius = Math.abs(clamped) / 5 * 80; 
+                const x = 100 + (clamped >= 0 ? radius : -radius);
+                const y = 100;
+                const color = angleColor(beta);
+
+                circularBubble.setAttribute('cx', x);
+                circularBubble.setAttribute('cy', y);
+                circularBubble.setAttribute('fill', color);
+                if (circularHighlight) {
+                    circularHighlight.setAttribute('cx', x - 4);
+                    circularHighlight.setAttribute('cy', y - 4);
+                }
+            }
+
+            // 3. تحديث النصوص الكبيرة (الزاوية الرقمية)
+            const bigAngle = document.querySelector('.angle-big');
+            if (bigAngle) {
+                const { beta } = getDisplayAngle();
+                bigAngle.style.color = angleColor(beta);
+                bigAngle.innerHTML = `${formatAngle(beta)}<span class="angle-deg">°</span>`;
+            }
         }
 
         // --- عرض الخطوات ---
@@ -380,11 +409,13 @@
             let html = `<div class="step-description">${step.desc}</div>`;
             if (step.visual) html += `<div class="visual-helper">${step.visual}</div>`;
 
+            // عرض الميزان الأنبوبي في خطوة الأرض
             if (step.id === 'ground') {
                 const { beta } = getDisplayAngle();
                 html += renderLevelBubble(beta, '📏 ميلان الأرض');
             }
 
+            // عرض الزاوية والقرص الدائري في باقي الخطوات
             if (step.showAngle && step.id !== 'ground') {
                 const { beta, gamma } = getDisplayAngle();
                 const color = angleColor(beta);
@@ -435,7 +466,6 @@
 
             stepContent.innerHTML = html;
 
-            // ربط الأزرار
             if (step.hasRecordButton) {
                 const recordBtn = document.getElementById('record-btn');
                 if (recordBtn) recordBtn.addEventListener('click', recordGround);
@@ -445,7 +475,6 @@
                 if (tareBtn) tareBtn.addEventListener('click', performTare);
             }
 
-            // أزرار التنقل
             navBack.style.display = index === 0 ? 'none' : 'flex';
 
             if (step.id === 'intro') {
@@ -474,6 +503,9 @@
             }
 
             statusMsg.textContent = index === 0 ? 'اقرأ التعليمات' : (step.id === 'tare' ? 'اضغط المعايرة' : 'ضع الهاتف على الجنط');
+            
+            // استدعاء دالة التحديث المباشر عند الرسم لأول مرة
+            updateDynamicGauges();
         }
 
         // --- منطق التحذير ---
@@ -505,22 +537,20 @@
             renderStep(currentStep);
         }
 
-        // --- إصلاح زر "التالي" و "إعادة القياس" ---
+        // --- التنقل ---
         navBack.addEventListener('click', () => {
             if (currentStep > 0) { currentStep--; renderStep(currentStep); }
         });
 
         navNext.addEventListener('click', () => {
-            // إصلاح زر إعادة القياس
             if (steps[currentStep].isReport) {
-                // إعادة الضبط بالكامل
                 readings = { ground: null, fr: null, fl: null, rr: null, rl: null };
                 tareOffset = { beta: 0, gamma: 0 };
                 tareDone = false;
                 floorWarningAccepted = false;
                 currentStep = 0;
                 renderStep(currentStep);
-                return; // نهاية الدالة
+                return;
             }
 
             if (currentStep < steps.length - 1) {
@@ -529,34 +559,19 @@
             }
         });
 
-        // --- تفعيل الحساسات ---
+        // --- تفعيل الحساسات وتحديث الميزان مباشرة ---
         if (window.DeviceOrientationEvent) {
             window.addEventListener('deviceorientation', function(event) {
                 if (event.beta !== null && event.gamma !== null) {
                     rawBeta = event.beta;
                     rawGamma = event.gamma;
-                    // تحديث الواجهة إذا كنا في خطوة تعرض زاوية
-                    const step = steps[currentStep];
-                    if (step && step.showAngle && step.id !== 'ground') {
-                        const { beta, gamma } = getDisplayAngle();
-                        const color = angleColor(beta);
-                        const bigAngle = document.querySelector('.angle-big');
-                        if (bigAngle) { bigAngle.style.color = color; bigAngle.innerHTML = `${formatAngle(beta)}<span class="angle-deg">°</span>`; }
-                        
-                        // تحديث القرص الدائري
-                        const gaugeSvg = document.querySelector('.gauge-svg');
-                        // (نقوم بتبسيط التحديث بإعادة رسم الخطوة الحالية كل 100 مللي ثانية، لكن يمكن تحسينها لاحقاً)
-                        // ملاحظة: إعادة الرسم المتكررة تستهلك أداء، لذا سنكتفي بتحديث النصوص الآن
-                        const camberVal = document.querySelector('.value-beta');
-                        const casterVal = document.querySelector('.value-gamma');
-                        if (camberVal) camberVal.textContent = formatAngle(beta);
-                        if (casterVal) casterVal.textContent = formatAngle(gamma);
-                    }
+                    
+                    // تحديث العناصر الحية (الفقاعات والنصوص) في كل لحظة
+                    updateDynamicGauges();
                 }
             });
         }
 
-        // --- البدء ---
         renderStep(0);
     })();
 </script>
