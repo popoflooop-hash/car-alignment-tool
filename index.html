@@ -44,6 +44,8 @@
 
         .angle-big { font-size: 30px; font-weight: 800; text-align: center; padding: 5px; direction: ltr; background: var(--card-bg); border-radius: 12px; box-shadow: 0 2px 8px var(--shadow-color); }
         .angle-deg { font-size: 18px; font-weight: 300; color: var(--text-secondary); }
+        
+        /* العدادات الرقمية الحية */
         .sub-reading { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 5px; }
         .sub-card { background: var(--card-bg); border-radius: 10px; padding: 6px; text-align: center; box-shadow: 0 2px 8px var(--shadow-color); }
         .sub-label { font-size: 10px; color: var(--text-secondary); }
@@ -69,25 +71,30 @@
 
         #theme-toggle { position: fixed; bottom: 70px; right: 10px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 50%; width: 40px; height: 40px; font-size: 18px; cursor: pointer; z-index: 100; box-shadow: 0 4px 15px var(--shadow-color); display: flex; align-items: center; justify-content: center; }
 
-        /* --- تصميم القرص الدائري --- */
         .gauge-container { background: var(--card-bg); border-radius: 12px; padding: 8px; box-shadow: 0 2px 8px var(--shadow-color); margin-bottom: 8px; position: relative; }
         .gauge-svg { width: 100%; max-height: 180px; }
+        
+        /* النص الرقمي داخل القرص */
+        .circle-degree { font-size: 20px; font-weight: 800; fill: var(--text-primary); }
+        
         .bubble-circle { fill: #66BB6A; stroke: #2E7D32; stroke-width: 2; filter: drop-shadow(0 0 5px rgba(102, 187, 106, 0.8)); }
         .bubble-highlight { fill: #fff; opacity: 0.7; }
 
-        /* --- مؤشر الحالة --- */
         .status-indicator { position: absolute; top: 5px; right: 5px; font-size: 18px; font-weight: 800; color: #fff; padding: 2px 8px; border-radius: 20px; background: #10B981; }
         .status-indicator.warning { background: #FFB74D; }
         .status-indicator.danger { background: #FF6B6B; }
         .status-indicator.excellent { background: #4FC3F7; }
 
-        /* --- تأثير الوميض --- */
+        /* وميض زر المتابعة */
+        @keyframes pulseGreen {
+            0% { background-color: #10B981; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            50% { background-color: #34D399; box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+            100% { background-color: var(--snap-blue); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+        .nav-pulse { animation: pulseGreen 1.5s ease-in-out 2; }
+
         @keyframes flashGreen { 0% { background-color: #4FC3F7; } 100% { background-color: var(--card-bg); } }
-        @keyframes flashYellow { 0% { background-color: #FFB74D; } 100% { background-color: var(--card-bg); } }
-        @keyframes flashRed { 0% { background-color: #FF6B6B; } 100% { background-color: var(--card-bg); } }
         .flash { animation: flashGreen 0.3s; }
-        .flash.warning { animation: flashYellow 0.3s; }
-        .flash.danger { animation: flashRed 0.3s; }
 
         .chart-container { background: var(--card-bg); border-radius: 16px; padding: 15px; margin-bottom: 10px; text-align: center; }
         .chart-title { font-weight: 800; margin-bottom: 10px; font-size: 14px; }
@@ -150,7 +157,7 @@
                 if ('wakeLock' in navigator) {
                     wakeLock = await navigator.wakeLock.request('screen');
                 }
-            } catch(e) { }
+            } catch(e) { /* المتصفح لا يدعمه */ }
         }
         requestWakeLock();
         document.addEventListener('visibilitychange', () => {
@@ -171,7 +178,7 @@
                 else { oscillator.frequency.value = 500; }
                 oscillator.start();
                 oscillator.stop(audioCtx.currentTime + 0.15);
-            } catch(e) { }
+            } catch(e) { /* لا صوت */ }
         }
 
         function vibrate(type) {
@@ -212,10 +219,10 @@
             { id: 'intro', title: '📋 تعليمات', desc: 'اقرأ التعليمات ثم اضغط "بدء".', visual: `┌──────────────────┐\n│  🛠️  تجهيز      │\n│  🚗 أرض مستوية  │\n│  🔧 ضغط إطارات  │\n│  🛑 فرامل يد    │\n└──────────────────┘`, checklist: [ { icon: '✅', text: 'السيارة على أرض مستوية.' }, { icon: '✅', text: 'ضغط الإطارات صحيح.' }, { icon: '✅', text: 'أطفئ المحرك واشدد الفرامل.' } ] },
             { id: 'ground', title: '🧭 الأرض', desc: 'ضع الهاتف على الأرض. اضغط تسجيل بعد استقرار القراءة.', visual: `┌────────┐\n│  📱    │\n│ 🟫🟫🟫 │\n└────────┘`, showCircular: true, hasRecordButton: true },
             { id: 'tare', title: '🎯 معايرة الصفر', desc: 'ضع الهاتف مسطحاً على أرضية السيارة. اضغط معايرة.', visual: `┌────────┐\n│ 🪑 مقعد│\n│ ┌──┐  │\n│ │📱│  │\n│ └──┘  │\n└────────┘`, showCircular: true, hasTareButton: true },
-            { id: 'fr', title: '🚗 الأمامية اليمنى (FR)', desc: 'ضع الهاتف عمودياً على الجنط. اضغط تسجيل.', visual: `┌────────┐\n│ ⚙️ 📱 │\n│ (عمودي)│\n└────────┘`, showCircular: true, side: 'fr', hasWheelButton: true },
-            { id: 'fl', title: '🚗 الأمامية اليسرى (FL)', desc: 'ضع الهاتف عمودياً على الجنط. اضغط تسجيل.', visual: `┌────────┐\n│ ⚙️ 📱 │\n│ (عمودي)│\n└────────┘`, showCircular: true, side: 'fl', hasWheelButton: true },
-            { id: 'rr', title: '🚙 الخلفية اليمنى (RR)', desc: 'اختياري، ضع الهاتف على الجنط. اضغط تسجيل.', visual: `┌────────┐\n│ ⚙️ 📱 │\n│ (عمودي)│\n└────────┘`, showCircular: true, side: 'rr', hasWheelButton: true },
-            { id: 'rl', title: '🚙 الخلفية اليسرى (RL)', desc: 'اختياري، ضع الهاتف على الجنط. اضغط تسجيل.', visual: `┌────────┐\n│ ⚙️ 📱 │\n│ (عمودي)│\n└────────┘`, showCircular: true, side: 'rl', hasWheelButton: true },
+            { id: 'fr', title: '🚗 الأمامية اليمنى (FR)', desc: 'ضع الهاتف عمودياً على الجنط.', visual: `┌────────┐\n│ ⚙️ 📱 │\n│ (عمودي)│\n└────────┘`, showCircular: true, side: 'fr' },
+            { id: 'fl', title: '🚗 الأمامية اليسرى (FL)', desc: 'ضع الهاتف عمودياً على الجنط.', visual: `┌────────┐\n│ ⚙️ 📱 │\n│ (عمودي)│\n└────────┘`, showCircular: true, side: 'fl' },
+            { id: 'rr', title: '🚙 الخلفية اليمنى (RR)', desc: 'اختياري، ضع الهاتف على الجنط.', visual: `┌────────┐\n│ ⚙️ 📱 │\n│ (عمودي)│\n└────────┘`, showCircular: true, side: 'rr' },
+            { id: 'rl', title: '🚙 الخلفية اليسرى (RL)', desc: 'اختياري، ضع الهاتف على الجنط.', visual: `┌────────┐\n│ ⚙️ 📱 │\n│ (عمودي)│\n└────────┘`, showCircular: true, side: 'rl' },
             { id: 'report', title: '📊 التقرير النهائي', desc: 'إليك ملخص القراءات مع الرسم الدائري.', visual: `┌─────────┐\n│ 📈 تقرير │\n└─────────┘`, isReport: true }
         ];
 
@@ -253,7 +260,7 @@
         function angleColor(angle) { const abs = Math.abs(angle); if (abs < 0.5) return '#4FC3F7'; if (abs < 1.0) return '#10B981'; if (abs < 2.0) return '#FFB74D'; return '#FF6B6B'; }
         function formatAngle(angle) { return angle === null ? '---' : `${angle >= 0 ? '+' : ''}${angle.toFixed(2)}°`; }
 
-        // --- القرص الدائري ---
+        // --- القرص الدائري (مع النص الرقمي الجديد) ---
         function renderCircularGauge(beta, gamma) {
             const max = 10;
             const x = 100 + (Math.max(-max, Math.min(max, gamma)) / max) * 60;
@@ -279,6 +286,12 @@
                     <text x="100" y="195" font-size="10" fill="#333" text-anchor="middle">-</text>
                     <text x="10" y="103" font-size="10" fill="#333" text-anchor="middle">-</text>
                     <text x="190" y="103" font-size="10" fill="#333" text-anchor="middle">+</text>
+                    
+                    <!-- الأرقام داخل القرص -->
+                    <text id="circle-degree" x="100" y="85" class="circle-degree" text-anchor="middle">${formatAngle(beta)}</text>
+                    <text x="100" y="105" font-size="10" fill="#666" text-anchor="middle">درجة</text>
+                    
+                    <!-- الفقاعة -->
                     <circle id="bubble" cx="${x}" cy="${y}" r="15" fill="${color}"/>
                     <circle id="bubble-highlight" cx="${x-4}" cy="${y-4}" r="4" fill="#fff" opacity="0.7"/>
                 </svg>
@@ -305,6 +318,11 @@
                 bubble.setAttribute('fill', color);
                 if (bubbleHighlight) { bubbleHighlight.setAttribute('cx', x-4); bubbleHighlight.setAttribute('cy', y-4); }
 
+                // تحديث النص الرقمي داخل القرص
+                const circleDegree = document.getElementById('circle-degree');
+                if (circleDegree) circleDegree.textContent = formatAngle(beta);
+
+                // تحديث المؤشر
                 const indicator = document.querySelector('.status-indicator');
                 if (indicator) {
                     indicator.className = `status-indicator ${state}`;
@@ -313,6 +331,17 @@
                     else if (state === 'warning') indicator.textContent = '⚠️';
                     else indicator.textContent = '❌';
                 }
+            }
+
+            // تحديث العدادات الرقمية الحية (Beta و Gamma)
+            const betaValue = document.getElementById('live-beta');
+            const gammaValue = document.getElementById('live-gamma');
+            if (betaValue && gammaValue) {
+                const { beta, gamma } = getDisplayAngle();
+                betaValue.textContent = formatAngle(beta);
+                betaValue.style.color = angleColor(beta);
+                gammaValue.textContent = formatAngle(gamma);
+                gammaValue.style.color = angleColor(gamma);
             }
         }
 
@@ -338,7 +367,7 @@
             return html;
         }
 
-        // --- عرض الخطوات ---
+        // --- عرض الخطوات (إعادة ضبط الأزرار) ---
         function renderStep(index) {
             const step = steps[index];
             if (!step) return;
@@ -357,23 +386,26 @@
                 else if (sensorError) html += `<div style="background:#FFE5E5;color:#c0392b;padding:8px;border-radius:8px;text-align:center;">الرجاء تفعيل الحساسات من إعدادات المتصفح</div>`;
             }
 
+            // إعادة العدادات الرقمية الحية (Beta و Gamma) + زاوية كبيرة
             if (step.id !== 'intro' && step.id !== 'report') {
                 const { beta, gamma } = getDisplayAngle();
                 html += `<div class="angle-big" style="color:${angleColor(beta)}">${formatAngle(beta)}<span class="angle-deg">°</span></div>`;
-                html += `<div class="sub-reading"><div class="sub-card"><div class="sub-label">📐 Beta</div><div class="sub-value value-beta">${formatAngle(beta)}</div></div><div class="sub-card"><div class="sub-label">📏 Gamma</div><div class="sub-value value-gamma">${formatAngle(gamma)}</div></div></div>`;
+                html += `<div class="sub-reading">
+                            <div class="sub-card">
+                                <div class="sub-label">📐 Beta</div>
+                                <div class="sub-value value-beta" id="live-beta">${formatAngle(beta)}</div>
+                            </div>
+                            <div class="sub-card">
+                                <div class="sub-label">📏 Gamma</div>
+                                <div class="sub-value value-gamma" id="live-gamma">${formatAngle(gamma)}</div>
+                            </div>
+                         </div>`;
             }
 
-            // إضافة أزرار التسجيل في كل خطوة مناسبة
-            if (step.hasRecordButton) { 
-                html += `<div class="action-row"><button class="action-btn btn-record" id="record-btn">${readings.ground !== null ? '✅ تم التسجيل' : '📝 تسجيل قراءة الأرض'}</button></div>`;
-            }
-            if (step.hasWheelButton) {
-                const isMeasured = readings[step.side] !== null;
-                html += `<div class="action-row"><button class="action-btn ${isMeasured ? 'btn-success' : 'btn-record'}" id="wheel-btn-${step.side}">${isMeasured ? '✅ تم التسجيل' : '📝 تسجيل القراءة'}</button></div>`;
-            }
-            if (step.hasTareButton) { 
-                html += `<div class="action-row"><button class="action-btn btn-tare" id="tare-action-btn" ${tareDone ? 'disabled' : ''}>${tareDone ? '✅ تمت المعايرة' : '🎯 معايرة الصفر'}</button></div>`;
-            }
+            // أزرار التسجيل والمعايرة
+            if (step.hasRecordButton) { html += `<div class="action-row"><button class="action-btn btn-record" id="record-btn">${readings.ground !== null ? '✅ تم التسجيل' : '📝 تسجيل'}</button></div>`; }
+            if (step.hasTareButton) { html += `<div class="action-row"><button class="action-btn btn-tare" id="tare-action-btn" ${tareDone ? 'disabled' : ''}>${tareDone ? '✅ تمت المعايرة' : '🎯 معايرة الصفر'}</button></div>`; }
+
             if (step.checklist) { html += `<div class="checklist" style="background:var(--card-bg);border-radius:10px;padding:8px;border:1px solid var(--border-color);">`; step.checklist.forEach(item => { html += `<div style="display:flex;gap:8px;padding:5px 0;font-size:12px;"><span>${item.icon}</span> ${item.text}</div>`; }); html += `</div>`; }
             if (step.isReport) {
                 const reportData = [ { label: 'FR', key: 'fr' }, { label: 'FL', key: 'fl' }, { label: 'RR', key: 'rr' }, { label: 'RL', key: 'rl' } ];
@@ -389,26 +421,27 @@
             // ربط الأزرار
             if (step.id === 'ground') { const sensorBtn = document.getElementById('enable-sensor'); if (sensorBtn) sensorBtn.addEventListener('click', enableSensors); }
             if (step.hasRecordButton) { const recordBtn = document.getElementById('record-btn'); if (recordBtn) recordBtn.addEventListener('click', recordGround); }
-            if (step.hasWheelButton) { 
-                const wheelBtn = document.getElementById(`wheel-btn-${step.side}`); 
-                if (wheelBtn) wheelBtn.addEventListener('click', () => saveWheelReading(step.side)); 
-            }
             if (step.hasTareButton) { const tareBtn = document.getElementById('tare-action-btn'); if (tareBtn) tareBtn.addEventListener('click', performTare); }
 
+            // حالة الأزرار
             navBack.style.display = index === 0 ? 'none' : 'flex';
+
             if (step.id === 'intro') { navNext.textContent = '🚀 بدء القياس'; navNext.className = 'nav-btn btn-success'; navNext.disabled = false; }
             else if (step.isReport) { navNext.textContent = '🔄 إعادة القياس'; navNext.className = 'nav-btn btn-secondary'; navNext.disabled = false; }
             else if (step.id === 'tare') { navNext.textContent = tareDone ? '✅ متابعة ➜' : '⏳ انتظر المعايرة...'; navNext.className = `nav-btn ${tareDone ? 'btn-primary' : 'btn-secondary'}`; navNext.disabled = !tareDone; }
             else if (step.id === 'ground') { navNext.textContent = readings.ground !== null ? '✅ متابعة ➜' : '⏳ سجل الأرض أولاً'; navNext.className = `nav-btn ${readings.ground !== null ? 'btn-primary' : 'btn-secondary'}`; navNext.disabled = readings.ground === null; }
-            else if (step.hasWheelButton) { 
-                const isMeasured = readings[step.side] !== null; 
-                navNext.textContent = isMeasured ? '✅ تم، تابع ➜' : '📐 تأكيد القراءة'; 
-                navNext.className = `nav-btn ${isMeasured ? 'btn-success' : 'btn-primary'}`; 
-                navNext.disabled = false; 
-            }
-            else { navNext.textContent = '📐 تأكيد القراءة'; navNext.className = 'nav-btn btn-primary'; navNext.disabled = false; }
+            else { const side = step.side; const isMeasured = side && readings[side] !== null; navNext.textContent = isMeasured ? '✅ تم، تابع ➜' : '📐 تأكيد القراءة'; navNext.className = `nav-btn ${isMeasured ? 'btn-success' : 'btn-primary'}`; navNext.disabled = false; }
+            
             statusMsg.textContent = index === 0 ? 'اقرأ التعليمات' : (step.id === 'tare' ? 'اضغط المعايرة' : 'ضع الهاتف على الجنط');
             updateDynamicGauges();
+        }
+
+        // --- دالة الوميض الأخضر لزر المتابعة ---
+        function pulseNextButton() {
+            navNext.classList.add('nav-pulse');
+            setTimeout(() => {
+                navNext.classList.remove('nav-pulse');
+            }, 3000); // يستمر الوميض لمدة 3 ثوانٍ
         }
 
         // --- تسجيل القراءات والتحذير ---
@@ -419,8 +452,10 @@
             
             function saveReading() { 
                 readings.ground = beta; 
-                playSound('good'); vibrate('good'); flashElement('record-btn'); 
+                playSound('good'); vibrate('good'); 
+                flashElement('record-btn'); 
                 renderStep(currentStep); 
+                pulseNextButton(); // الوميض الأخضر بعد التسجيل
             }
             
             if (!isFloorLevel && !floorWarningAccepted) {
@@ -430,36 +465,29 @@
             } else { saveReading(); }
         }
 
-        function saveWheelReading(side) {
-            if (!sensorActive) { alert("الرجاء تفعيل الحساسات أولاً!"); return; }
-            const { beta, gamma } = getDisplayAngle();
-            readings[side] = beta;
-            const total = Math.sqrt(beta*beta + gamma*gamma);
-            if (total < 1.5) { playSound('good'); vibrate('good'); }
-            else { playSound('warning'); vibrate('warning'); }
-            renderStep(currentStep);
-        }
-
         function performTare() {
             tareOffset.beta = rawBeta; tareOffset.gamma = rawGamma; tareDone = true;
-            playSound('good'); vibrate('good'); renderStep(currentStep);
+            playSound('good'); vibrate('good'); 
+            renderStep(currentStep);
+            pulseNextButton(); // الوميض الأخضر بعد المعايرة
         }
 
-        function flashElement(id) {
-            const el = document.getElementById(id);
-            if (el) {
-                el.classList.add('flash');
-                setTimeout(() => el.classList.remove('flash'), 300);
-            }
+        // --- تسجيل قراءات العجلات (إصلاح عدم التسجيل) ---
+        function saveWheelReading(side) {
+            const { beta, gamma } = getDisplayAngle();
+            readings[side] = beta;
+            playSound(beta < 1.5 ? 'good' : 'warning');
+            vibrate(beta < 1.5 ? 'good' : 'warning');
+            renderStep(currentStep);
+            pulseNextButton(); // الوميض الأخضر بعد تسجيل العجلة
         }
 
-        // --- التنقل ---
-        navBack.addEventListener('click', () => { if (currentStep > 0) { currentStep--; renderStep(currentStep); } });
+        // --- إصلاح زر التالي ليتأكد من التسجيل ---
         navNext.addEventListener('click', () => {
-            // التسجيل التلقائي عند الضغط على التالي في خطوات العجلات إذا لم يتم التسجيل
             const step = steps[currentStep];
-            if (step.hasWheelButton && readings[step.side] === null) {
+            if (step.side && readings[step.side] === null) {
                 saveWheelReading(step.side);
+                // هذه الدالة ستعيد رسم الخطوة وتحديث زر التالي
             }
             
             if (step.isReport) {
