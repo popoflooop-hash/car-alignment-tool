@@ -367,7 +367,7 @@
             return html;
         }
 
-        // --- عرض الخطوات (إعادة ضبط الأزرار) ---
+        // --- عرض الخطوات ---
         function renderStep(index) {
             const step = steps[index];
             if (!step) return;
@@ -386,7 +386,6 @@
                 else if (sensorError) html += `<div style="background:#FFE5E5;color:#c0392b;padding:8px;border-radius:8px;text-align:center;">الرجاء تفعيل الحساسات من إعدادات المتصفح</div>`;
             }
 
-            // إعادة العدادات الرقمية الحية (Beta و Gamma) + زاوية كبيرة
             if (step.id !== 'intro' && step.id !== 'report') {
                 const { beta, gamma } = getDisplayAngle();
                 html += `<div class="angle-big" style="color:${angleColor(beta)}">${formatAngle(beta)}<span class="angle-deg">°</span></div>`;
@@ -402,7 +401,6 @@
                          </div>`;
             }
 
-            // أزرار التسجيل والمعايرة
             if (step.hasRecordButton) { html += `<div class="action-row"><button class="action-btn btn-record" id="record-btn">${readings.ground !== null ? '✅ تم التسجيل' : '📝 تسجيل'}</button></div>`; }
             if (step.hasTareButton) { html += `<div class="action-row"><button class="action-btn btn-tare" id="tare-action-btn" ${tareDone ? 'disabled' : ''}>${tareDone ? '✅ تمت المعايرة' : '🎯 معايرة الصفر'}</button></div>`; }
 
@@ -418,12 +416,10 @@
             }
             stepContent.innerHTML = html;
 
-            // ربط الأزرار
             if (step.id === 'ground') { const sensorBtn = document.getElementById('enable-sensor'); if (sensorBtn) sensorBtn.addEventListener('click', enableSensors); }
             if (step.hasRecordButton) { const recordBtn = document.getElementById('record-btn'); if (recordBtn) recordBtn.addEventListener('click', recordGround); }
             if (step.hasTareButton) { const tareBtn = document.getElementById('tare-action-btn'); if (tareBtn) tareBtn.addEventListener('click', performTare); }
 
-            // حالة الأزرار
             navBack.style.display = index === 0 ? 'none' : 'flex';
 
             if (step.id === 'intro') { navNext.textContent = '🚀 بدء القياس'; navNext.className = 'nav-btn btn-success'; navNext.disabled = false; }
@@ -444,7 +440,7 @@
             }, 3000); // يستمر الوميض لمدة 3 ثوانٍ
         }
 
-        // --- تسجيل القراءات والتحذير ---
+        // --- تسجيل القراءات والتحذير (الإصلاح الجوهري هنا) ---
         function recordGround() {
             if (!sensorActive) { alert("الرجاء تفعيل الحساسات أولاً!"); return; }
             const { beta } = getDisplayAngle();
@@ -454,14 +450,20 @@
                 readings.ground = beta; 
                 playSound('good'); vibrate('good'); 
                 flashElement('record-btn'); 
-                renderStep(currentStep); 
+                renderStep(currentStep); // هذا السطر يعيد رسم الخطوة ويحدّث زر التالي
                 pulseNextButton(); // الوميض الأخضر بعد التسجيل
             }
             
             if (!isFloorLevel && !floorWarningAccepted) {
                 customModal.style.display = 'flex';
-                modalContinue.onclick = function() { floorWarningAccepted = true; saveReading(); customModal.style.display = 'none'; };
-                modalCancel.onclick = function() { customModal.style.display = 'none'; };
+                modalContinue.onclick = function() { 
+                    floorWarningAccepted = true; 
+                    customModal.style.display = 'none'; // إخفاء النافذة أولاً
+                    saveReading(); // ثم الحفظ وتحديث الواجهة
+                };
+                modalCancel.onclick = function() { 
+                    customModal.style.display = 'none'; 
+                };
             } else { saveReading(); }
         }
 
@@ -469,25 +471,25 @@
             tareOffset.beta = rawBeta; tareOffset.gamma = rawGamma; tareDone = true;
             playSound('good'); vibrate('good'); 
             renderStep(currentStep);
-            pulseNextButton(); // الوميض الأخضر بعد المعايرة
+            pulseNextButton();
         }
 
-        // --- تسجيل قراءات العجلات (إصلاح عدم التسجيل) ---
+        // --- تسجيل قراءات العجلات ---
         function saveWheelReading(side) {
             const { beta, gamma } = getDisplayAngle();
             readings[side] = beta;
             playSound(beta < 1.5 ? 'good' : 'warning');
             vibrate(beta < 1.5 ? 'good' : 'warning');
             renderStep(currentStep);
-            pulseNextButton(); // الوميض الأخضر بعد تسجيل العجلة
+            pulseNextButton();
         }
 
-        // --- إصلاح زر التالي ليتأكد من التسجيل ---
+        // --- زر التالي (التنقل) ---
         navNext.addEventListener('click', () => {
             const step = steps[currentStep];
+            
             if (step.side && readings[step.side] === null) {
                 saveWheelReading(step.side);
-                // هذه الدالة ستعيد رسم الخطوة وتحديث زر التالي
             }
             
             if (step.isReport) {
