@@ -75,13 +75,13 @@
         .bubble-circle { fill: #66BB6A; stroke: #2E7D32; stroke-width: 2; filter: drop-shadow(0 0 5px rgba(102, 187, 106, 0.8)); }
         .bubble-highlight { fill: #fff; opacity: 0.7; }
 
-        /* --- مؤشر الحالة (الإيماءات البصرية) --- */
+        /* --- مؤشر الحالة --- */
         .status-indicator { position: absolute; top: 5px; right: 5px; font-size: 18px; font-weight: 800; color: #fff; padding: 2px 8px; border-radius: 20px; background: #10B981; }
         .status-indicator.warning { background: #FFB74D; }
         .status-indicator.danger { background: #FF6B6B; }
         .status-indicator.excellent { background: #4FC3F7; }
 
-        /* --- تأثير الاهتزاز والوميض --- */
+        /* --- تأثير الوميض --- */
         @keyframes flashGreen { 0% { background-color: #4FC3F7; } 100% { background-color: var(--card-bg); } }
         @keyframes flashYellow { 0% { background-color: #FFB74D; } 100% { background-color: var(--card-bg); } }
         @keyframes flashRed { 0% { background-color: #FF6B6B; } 100% { background-color: var(--card-bg); } }
@@ -150,7 +150,7 @@
                 if ('wakeLock' in navigator) {
                     wakeLock = await navigator.wakeLock.request('screen');
                 }
-            } catch(e) { /* المتصفح لا يدعمه */ }
+            } catch(e) { }
         }
         requestWakeLock();
         document.addEventListener('visibilitychange', () => {
@@ -171,7 +171,7 @@
                 else { oscillator.frequency.value = 500; }
                 oscillator.start();
                 oscillator.stop(audioCtx.currentTime + 0.15);
-            } catch(e) { /* لا صوت */ }
+            } catch(e) { }
         }
 
         function vibrate(type) {
@@ -212,10 +212,10 @@
             { id: 'intro', title: '📋 تعليمات', desc: 'اقرأ التعليمات ثم اضغط "بدء".', visual: `┌──────────────────┐\n│  🛠️  تجهيز      │\n│  🚗 أرض مستوية  │\n│  🔧 ضغط إطارات  │\n│  🛑 فرامل يد    │\n└──────────────────┘`, checklist: [ { icon: '✅', text: 'السيارة على أرض مستوية.' }, { icon: '✅', text: 'ضغط الإطارات صحيح.' }, { icon: '✅', text: 'أطفئ المحرك واشدد الفرامل.' } ] },
             { id: 'ground', title: '🧭 الأرض', desc: 'ضع الهاتف على الأرض. اضغط تسجيل بعد استقرار القراءة.', visual: `┌────────┐\n│  📱    │\n│ 🟫🟫🟫 │\n└────────┘`, showCircular: true, hasRecordButton: true },
             { id: 'tare', title: '🎯 معايرة الصفر', desc: 'ضع الهاتف مسطحاً على أرضية السيارة. اضغط معايرة.', visual: `┌────────┐\n│ 🪑 مقعد│\n│ ┌──┐  │\n│ │📱│  │\n│ └──┘  │\n└────────┘`, showCircular: true, hasTareButton: true },
-            { id: 'fr', title: '🚗 الأمامية اليمنى (FR)', desc: 'ضع الهاتف عمودياً على الجنط.', visual: `┌────────┐\n│ ⚙️ 📱 │\n│ (عمودي)│\n└────────┘`, showCircular: true, side: 'fr' },
-            { id: 'fl', title: '🚗 الأمامية اليسرى (FL)', desc: 'ضع الهاتف عمودياً على الجنط.', visual: `┌────────┐\n│ ⚙️ 📱 │\n│ (عمودي)│\n└────────┘`, showCircular: true, side: 'fl' },
-            { id: 'rr', title: '🚙 الخلفية اليمنى (RR)', desc: 'اختياري، ضع الهاتف على الجنط.', visual: `┌────────┐\n│ ⚙️ 📱 │\n│ (عمودي)│\n└────────┘`, showCircular: true, side: 'rr' },
-            { id: 'rl', title: '🚙 الخلفية اليسرى (RL)', desc: 'اختياري، ضع الهاتف على الجنط.', visual: `┌────────┐\n│ ⚙️ 📱 │\n│ (عمودي)│\n└────────┘`, showCircular: true, side: 'rl' },
+            { id: 'fr', title: '🚗 الأمامية اليمنى (FR)', desc: 'ضع الهاتف عمودياً على الجنط. اضغط تسجيل.', visual: `┌────────┐\n│ ⚙️ 📱 │\n│ (عمودي)│\n└────────┘`, showCircular: true, side: 'fr', hasWheelButton: true },
+            { id: 'fl', title: '🚗 الأمامية اليسرى (FL)', desc: 'ضع الهاتف عمودياً على الجنط. اضغط تسجيل.', visual: `┌────────┐\n│ ⚙️ 📱 │\n│ (عمودي)│\n└────────┘`, showCircular: true, side: 'fl', hasWheelButton: true },
+            { id: 'rr', title: '🚙 الخلفية اليمنى (RR)', desc: 'اختياري، ضع الهاتف على الجنط. اضغط تسجيل.', visual: `┌────────┐\n│ ⚙️ 📱 │\n│ (عمودي)│\n└────────┘`, showCircular: true, side: 'rr', hasWheelButton: true },
+            { id: 'rl', title: '🚙 الخلفية اليسرى (RL)', desc: 'اختياري، ضع الهاتف على الجنط. اضغط تسجيل.', visual: `┌────────┐\n│ ⚙️ 📱 │\n│ (عمودي)│\n└────────┘`, showCircular: true, side: 'rl', hasWheelButton: true },
             { id: 'report', title: '📊 التقرير النهائي', desc: 'إليك ملخص القراءات مع الرسم الدائري.', visual: `┌─────────┐\n│ 📈 تقرير │\n└─────────┘`, isReport: true }
         ];
 
@@ -305,7 +305,6 @@
                 bubble.setAttribute('fill', color);
                 if (bubbleHighlight) { bubbleHighlight.setAttribute('cx', x-4); bubbleHighlight.setAttribute('cy', y-4); }
 
-                // تحديث المؤشر
                 const indicator = document.querySelector('.status-indicator');
                 if (indicator) {
                     indicator.className = `status-indicator ${state}`;
@@ -364,8 +363,17 @@
                 html += `<div class="sub-reading"><div class="sub-card"><div class="sub-label">📐 Beta</div><div class="sub-value value-beta">${formatAngle(beta)}</div></div><div class="sub-card"><div class="sub-label">📏 Gamma</div><div class="sub-value value-gamma">${formatAngle(gamma)}</div></div></div>`;
             }
 
-            if (step.hasRecordButton) { html += `<div class="action-row"><button class="action-btn btn-record" id="record-btn">${readings.ground !== null ? '✅ تم التسجيل' : '📝 تسجيل'}</button></div>`; }
-            if (step.hasTareButton) { html += `<div class="action-row"><button class="action-btn btn-tare" id="tare-action-btn" ${tareDone ? 'disabled' : ''}>${tareDone ? '✅ تمت المعايرة' : '🎯 معايرة الصفر'}</button></div>`; }
+            // إضافة أزرار التسجيل في كل خطوة مناسبة
+            if (step.hasRecordButton) { 
+                html += `<div class="action-row"><button class="action-btn btn-record" id="record-btn">${readings.ground !== null ? '✅ تم التسجيل' : '📝 تسجيل قراءة الأرض'}</button></div>`;
+            }
+            if (step.hasWheelButton) {
+                const isMeasured = readings[step.side] !== null;
+                html += `<div class="action-row"><button class="action-btn ${isMeasured ? 'btn-success' : 'btn-record'}" id="wheel-btn-${step.side}">${isMeasured ? '✅ تم التسجيل' : '📝 تسجيل القراءة'}</button></div>`;
+            }
+            if (step.hasTareButton) { 
+                html += `<div class="action-row"><button class="action-btn btn-tare" id="tare-action-btn" ${tareDone ? 'disabled' : ''}>${tareDone ? '✅ تمت المعايرة' : '🎯 معايرة الصفر'}</button></div>`;
+            }
             if (step.checklist) { html += `<div class="checklist" style="background:var(--card-bg);border-radius:10px;padding:8px;border:1px solid var(--border-color);">`; step.checklist.forEach(item => { html += `<div style="display:flex;gap:8px;padding:5px 0;font-size:12px;"><span>${item.icon}</span> ${item.text}</div>`; }); html += `</div>`; }
             if (step.isReport) {
                 const reportData = [ { label: 'FR', key: 'fr' }, { label: 'FL', key: 'fl' }, { label: 'RR', key: 'rr' }, { label: 'RL', key: 'rl' } ];
@@ -378,8 +386,13 @@
             }
             stepContent.innerHTML = html;
 
+            // ربط الأزرار
             if (step.id === 'ground') { const sensorBtn = document.getElementById('enable-sensor'); if (sensorBtn) sensorBtn.addEventListener('click', enableSensors); }
             if (step.hasRecordButton) { const recordBtn = document.getElementById('record-btn'); if (recordBtn) recordBtn.addEventListener('click', recordGround); }
+            if (step.hasWheelButton) { 
+                const wheelBtn = document.getElementById(`wheel-btn-${step.side}`); 
+                if (wheelBtn) wheelBtn.addEventListener('click', () => saveWheelReading(step.side)); 
+            }
             if (step.hasTareButton) { const tareBtn = document.getElementById('tare-action-btn'); if (tareBtn) tareBtn.addEventListener('click', performTare); }
 
             navBack.style.display = index === 0 ? 'none' : 'flex';
@@ -387,7 +400,13 @@
             else if (step.isReport) { navNext.textContent = '🔄 إعادة القياس'; navNext.className = 'nav-btn btn-secondary'; navNext.disabled = false; }
             else if (step.id === 'tare') { navNext.textContent = tareDone ? '✅ متابعة ➜' : '⏳ انتظر المعايرة...'; navNext.className = `nav-btn ${tareDone ? 'btn-primary' : 'btn-secondary'}`; navNext.disabled = !tareDone; }
             else if (step.id === 'ground') { navNext.textContent = readings.ground !== null ? '✅ متابعة ➜' : '⏳ سجل الأرض أولاً'; navNext.className = `nav-btn ${readings.ground !== null ? 'btn-primary' : 'btn-secondary'}`; navNext.disabled = readings.ground === null; }
-            else { const side = step.side; const isMeasured = side && readings[side] !== null; navNext.textContent = isMeasured ? '✅ تم، تابع ➜' : '📐 تأكيد القراءة'; navNext.className = `nav-btn ${isMeasured ? 'btn-success' : 'btn-primary'}`; navNext.disabled = false; }
+            else if (step.hasWheelButton) { 
+                const isMeasured = readings[step.side] !== null; 
+                navNext.textContent = isMeasured ? '✅ تم، تابع ➜' : '📐 تأكيد القراءة'; 
+                navNext.className = `nav-btn ${isMeasured ? 'btn-success' : 'btn-primary'}`; 
+                navNext.disabled = false; 
+            }
+            else { navNext.textContent = '📐 تأكيد القراءة'; navNext.className = 'nav-btn btn-primary'; navNext.disabled = false; }
             statusMsg.textContent = index === 0 ? 'اقرأ التعليمات' : (step.id === 'tare' ? 'اضغط المعايرة' : 'ضع الهاتف على الجنط');
             updateDynamicGauges();
         }
@@ -398,7 +417,11 @@
             const { beta } = getDisplayAngle();
             const isFloorLevel = Math.abs(beta) < 0.5;
             
-            function saveReading() { readings.ground = beta; playSound('good'); vibrate('good'); flashElement('record-btn'); renderStep(currentStep); }
+            function saveReading() { 
+                readings.ground = beta; 
+                playSound('good'); vibrate('good'); flashElement('record-btn'); 
+                renderStep(currentStep); 
+            }
             
             if (!isFloorLevel && !floorWarningAccepted) {
                 customModal.style.display = 'flex';
@@ -407,31 +430,36 @@
             } else { saveReading(); }
         }
 
+        function saveWheelReading(side) {
+            if (!sensorActive) { alert("الرجاء تفعيل الحساسات أولاً!"); return; }
+            const { beta, gamma } = getDisplayAngle();
+            readings[side] = beta;
+            const total = Math.sqrt(beta*beta + gamma*gamma);
+            if (total < 1.5) { playSound('good'); vibrate('good'); }
+            else { playSound('warning'); vibrate('warning'); }
+            renderStep(currentStep);
+        }
+
         function performTare() {
             tareOffset.beta = rawBeta; tareOffset.gamma = rawGamma; tareDone = true;
             playSound('good'); vibrate('good'); renderStep(currentStep);
         }
 
-        // --- تسجيل قراءات العجلات (إصلاح عدم التسجيل) ---
-        function saveWheelReading(side) {
-            const { beta, gamma } = getDisplayAngle();
-            readings[side] = beta;
-            playSound(beta < 1.5 ? 'good' : 'warning');
-            vibrate(beta < 1.5 ? 'good' : 'warning');
-            renderStep(currentStep);
+        function flashElement(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.classList.add('flash');
+                setTimeout(() => el.classList.remove('flash'), 300);
+            }
         }
 
-        // --- إضافة أزرار تسجيل العجلات عند العرض ---
-        // (هذا الجزء يظهر عند اختيار السيارة في خطوات العجلات)
-        // سأقوم بتعديل renderStep للحاق بالأزرار الجديدة
-
-        // --- التنقل مع إصلاح تسجيل العجلات ---
+        // --- التنقل ---
+        navBack.addEventListener('click', () => { if (currentStep > 0) { currentStep--; renderStep(currentStep); } });
         navNext.addEventListener('click', () => {
-            // عند الانتقال لخطوة عجلة، نخزن القراءة تلقائياً إذا لم يتم التسجيل
+            // التسجيل التلقائي عند الضغط على التالي في خطوات العجلات إذا لم يتم التسجيل
             const step = steps[currentStep];
-            if (step.side && readings[step.side] === null) {
+            if (step.hasWheelButton && readings[step.side] === null) {
                 saveWheelReading(step.side);
-                // هذه الدالة ستعيد رسم الخطوة وتحديث زر التالي
             }
             
             if (step.isReport) {
