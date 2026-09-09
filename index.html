@@ -73,7 +73,11 @@
 
         #theme-toggle { position: fixed; bottom: 90px; right: 15px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 50%; width: 48px; height: 48px; font-size: 22px; cursor: pointer; z-index: 100; box-shadow: 0 4px 15px var(--shadow-color); display: flex; align-items: center; justify-content: center; }
 
-        .bubble-circle { fill: #66BB6A; stroke: #2E7D32; stroke-width: 2; }
+        /* --- تصميم ميزان المياه الدائري (الرئيسي) --- */
+        .gauge-container { background: var(--card-bg); border-radius: 16px; padding: 10px; box-shadow: 0 2px 8px var(--shadow-color); margin-bottom: 10px; }
+        .gauge-svg { width: 100%; height: auto; }
+        .bubble-circle { fill: #66BB6A; stroke: #2E7D32; stroke-width: 3; filter: drop-shadow(0 0 5px rgba(102, 187, 106, 0.8)); }
+        .bubble-highlight { fill: #fff; opacity: 0.7; }
 
         .chart-container { background: var(--card-bg); border-radius: 16px; padding: 15px; margin-bottom: 15px; text-align: center; }
         .chart-title { font-weight: 800; margin-bottom: 15px; }
@@ -124,7 +128,7 @@
         let sensorActive = false;
         let sensorError = false;
 
-        // --- استدعاء دالة الإذن (الحل الجذري) ---
+        // --- استدعاء دالة الإذن ---
         async function enableSensors() {
             if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
                 try {
@@ -142,7 +146,6 @@
                     statusMsg.textContent = '❌ حصل خطأ أثناء تفعيل الحساس';
                 }
             } else if (typeof DeviceOrientationEvent !== 'undefined') {
-                // متصفحات لا تتطلب إذن (أندرويد غالباً)
                 sensorActive = true;
                 window.addEventListener('deviceorientation', handleOrientation);
                 statusMsg.textContent = '✅ الحساسات تعمل تلقائياً';
@@ -163,12 +166,12 @@
         // --- المتغيرات الأساسية ---
         const steps = [
             { id: 'intro', title: '📋 تعليمات ما قبل البدء', desc: 'اقرأ التعليمات جيداً، ثم اضغط "بدء القياس".', visual: `┌─────────────────────────┐\n│  🛠️  تجهيز السيارة     │\n│                         │\n│  🚗 على أرض مستوية    │\n│  🔧 ضغط الإطارات صحيح  │\n│  🛑 فرامل اليد مشدودة  │\n└─────────────────────────┘`, checklist: [ { icon: '✅', text: 'السيارة على أرض مستوية.' }, { icon: '✅', text: 'ضغط الإطارات صحيح.' }, { icon: '✅', text: 'أطفئ المحرك واشدد الفرامل.' } ] },
-            { id: 'ground', title: '🧭 الخطوة 1: قياس مستوى الأرض', desc: 'ضع الهاتف على الأرض بجانب العجلة. **لاحظ حركة الفقاعة!** اضغط "تسجيل" لتخزين القراءة.', visual: `┌────────────────┐\n│  📱 (هاتف)     │\n│  🟫🟫🟫🟫🟫🟫    │\n│  🟫 (الأرض) 🟫  │\n└────────────────┘`, showAngle: true, hasRecordButton: true },
-            { id: 'tare', title: '🎯 الخطوة 2: معايرة الصفر (Tare)', desc: 'ضع الهاتف مسطحاً على أرضية السيارة، ثم اضغط "معايرة الصفر".', visual: `┌──────────────┐\n│  🪑 مقعد      │\n│  ┌────┐      │\n│  │📱│ أرضية  │\n│  └────┘      │\n└──────────────┘`, showAngle: true, hasTareButton: true },
-            { id: 'fr', title: '🚗 الخطوة 3: قياس الأمامية اليمنى (FR)', desc: 'ضع الهاتف عمودياً على الجنط.', visual: `┌────────────────┐\n│ ⚙️ (جنط) 📱    │\n│  (عمودي)       │\n└────────────────┘`, showAngle: true, side: 'fr' },
-            { id: 'fl', title: '🚗 الخطوة 4: قياس الأمامية اليسرى (FL)', desc: 'ضع الهاتف عمودياً على الجنط.', visual: `┌────────────────┐\n│ ⚙️ (جنط) 📱    │\n│  (عمودي)       │\n└────────────────┘`, showAngle: true, side: 'fl' },
-            { id: 'rr', title: '🚙 الخطوة 5: قياس الخلفية اليمنى (RR) - اختياري', desc: 'ضع الهاتف عمودياً على الجنط.', visual: `┌────────────────┐\n│ ⚙️ (جنط) 📱    │\n│  (عمودي)       │\n└────────────────┘`, showAngle: true, side: 'rr' },
-            { id: 'rl', title: '🚙 الخطوة 6: قياس الخلفية اليسرى (RL) - اختياري', desc: 'ضع الهاتف عمودياً على الجنط.', visual: `┌────────────────┐\n│ ⚙️ (جنط) 📱    │\n│  (عمودي)       │\n└────────────────┘`, showAngle: true, side: 'rl' },
+            { id: 'ground', title: '🧭 الخطوة 1: قياس مستوى الأرض', desc: 'ضع الهاتف مسطحاً على الأرض. **راقب حركة الفقاعة في القرص الدائري!** اضغط "تسجيل" لتخزين القراءة.', visual: `┌────────────────┐\n│  📱 (هاتف)     │\n│  🟫🟫🟫🟫🟫🟫    │\n│  🟫 (الأرض) 🟫  │\n└────────────────┘`, showCircular: true, hasRecordButton: true },
+            { id: 'tare', title: '🎯 الخطوة 2: معايرة الصفر (Tare)', desc: 'ضع الهاتف مسطحاً على أرضية السيارة، ثم اضغط "معايرة الصفر".', visual: `┌──────────────┐\n│  🪑 مقعد      │\n│  ┌────┐      │\n│  │📱│ أرضية  │\n│  └────┘      │\n└──────────────┘`, showCircular: true, hasTareButton: true },
+            { id: 'fr', title: '🚗 الخطوة 3: قياس الأمامية اليمنى (FR)', desc: 'ضع الهاتف عمودياً على الجنط. راقب القرص الدائري.', visual: `┌────────────────┐\n│ ⚙️ (جنط) 📱    │\n│  (عمودي)       │\n└────────────────┘`, showCircular: true, side: 'fr' },
+            { id: 'fl', title: '🚗 الخطوة 4: قياس الأمامية اليسرى (FL)', desc: 'ضع الهاتف عمودياً على الجنط. راقب القرص الدائري.', visual: `┌────────────────┐\n│ ⚙️ (جنط) 📱    │\n│  (عمودي)       │\n└────────────────┘`, showCircular: true, side: 'fl' },
+            { id: 'rr', title: '🚙 الخطوة 5: قياس الخلفية اليمنى (RR) - اختياري', desc: 'ضع الهاتف عمودياً على الجنط. راقب القرص الدائري.', visual: `┌────────────────┐\n│ ⚙️ (جنط) 📱    │\n│  (عمودي)       │\n└────────────────┘`, showCircular: true, side: 'rr' },
+            { id: 'rl', title: '🚙 الخطوة 6: قياس الخلفية اليسرى (RL) - اختياري', desc: 'ضع الهاتف عمودياً على الجنط. راقب القرص الدائري.', visual: `┌────────────────┐\n│ ⚙️ (جنط) 📱    │\n│  (عمودي)       │\n└────────────────┘`, showCircular: true, side: 'rl' },
             { id: 'report', title: '📊 التقرير النهائي', desc: 'إليك ملخص القراءات مع الرسم الدائري.', visual: `┌─────────────┐\n│  📈 التقرير  │\n└─────────────┘`, isReport: true }
         ];
 
@@ -201,16 +204,91 @@
         function angleColor(angle) { const abs = Math.abs(angle); if (abs < 1.0) return '#4FC3F7'; if (abs < 2.0) return '#FFB74D'; return '#FF6B6B'; }
         function formatAngle(angle) { if (angle === null || angle === undefined) return '---'; return `${angle >= 0 ? '+' : ''}${angle.toFixed(2)}°`; }
 
-        // --- إنشاء ميزان المياه الأنبوبي ---
-        function renderLevelBubble(angle, label = 'مستوى الأرض') {
-            const max = 5; const clamped = Math.max(-max, Math.min(max, angle)); const xPos = 50 + (clamped / max) * 40; const color = angleColor(angle);
-            return `<div class="gauge-container"><div style="text-align:center;font-weight:bold;margin-bottom:5px;">${label}</div><svg class="gauge-svg" viewBox="0 0 200 60" id="level-gauge"><rect x="10" y="20" width="180" height="20" rx="10" fill="#c8e6c9" stroke="#2e7d32" stroke-width="2"/><line x1="50" y1="18" x2="50" y2="42" stroke="#2e7d32" stroke-width="1"/><line x1="90" y1="18" x2="90" y2="42" stroke="#2e7d32" stroke-width="1"/><line x1="110" y1="18" x2="110" y2="42" stroke="#2e7d32" stroke-width="1"/><line x1="150" y1="18" x2="150" y2="42" stroke="#2e7d32" stroke-width="1"/><line x1="100" y1="15" x2="100" y2="45" stroke="#2e7d32" stroke-width="3"/><circle id="level-bubble" cx="${xPos}" cy="30" r="12" class="bubble-circle" fill="${color}" stroke="#2E7D32" stroke-width="2"/><circle id="level-highlight" cx="${xPos-4}" cy="25" r="3" fill="#fff" opacity="0.7"/><text x="50" y="55" font-size="10" fill="#666" text-anchor="middle">-</text><text x="100" y="55" font-size="10" fill="#666" text-anchor="middle">0</text><text x="150" y="55" font-size="10" fill="#666" text-anchor="middle">+</text></svg></div>`;
+        // --- دالة إنشاء القرص الدائري الرئيسي ---
+        function renderCircularGauge(angleBeta, angleGamma) {
+            // نعتمد على القيم الفعلية للميلان
+            // beta تتحرك عمودياً (أعلى وأسفل)
+            // gamma تتحرك أفقياً (يمين ويسار)
+            // نضرب في 10 لتكبير الحركة (المدى من -10 إلى 10 درجات، القرص نصف قطره 80)
+            const max = 10; 
+            
+            // حساب الإحداثيات داخل القرص
+            const x = 100 + (Math.max(-max, Math.min(max, angleGamma)) / max) * 80;
+            const y = 100 - (Math.max(-max, Math.min(max, angleBeta)) / max) * 80;
+            
+            const color = angleColor(Math.sqrt(angleBeta*angleBeta + angleGamma*angleGamma));
+            
+            return `
+            <div class="gauge-container">
+                <div style="text-align:center;font-weight:bold;margin-bottom:5px;">🌐 قرص ميزان المياه</div>
+                <svg class="gauge-svg" viewBox="0 0 200 200" id="circular-gauge">
+                    <defs>
+                        <radialGradient id="grad1" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stop-color="#fff" />
+                            <stop offset="100%" stop-color="#e0e0e0" />
+                        </radialGradient>
+                    </defs>
+                    <!-- قاعدة القرص -->
+                    <circle cx="100" cy="100" r="95" fill="url(#grad1)" stroke="#333" stroke-width="4"/>
+                    <circle cx="100" cy="100" r="80" fill="none" stroke="#ddd" stroke-width="2"/>
+                    <circle cx="100" cy="100" r="50" fill="none" stroke="#ddd" stroke-width="1"/>
+                    
+                    <!-- علامات التدرج -->
+                    <line x1="100" y1="5" x2="100" y2="15" stroke="#333" stroke-width="3"/>
+                    <line x1="100" y1="185" x2="100" y2="195" stroke="#333" stroke-width="3"/>
+                    <line x1="5" y1="100" x2="15" y2="100" stroke="#333" stroke-width="3"/>
+                    <line x1="185" y1="100" x2="195" y2="100" stroke="#333" stroke-width="3"/>
+                    
+                    <line x1="25" y1="25" x2="35" y2="35" stroke="#666" stroke-width="2"/>
+                    <line x1="175" y1="25" x2="165" y2="35" stroke="#666" stroke-width="2"/>
+                    <line x1="25" y1="175" x2="35" y2="165" stroke="#666" stroke-width="2"/>
+                    <line x1="175" y1="175" x2="165" y2="165" stroke="#666" stroke-width="2"/>
+                    
+                    <text x="100" y="15" font-size="12" fill="#333" text-anchor="middle">+</text>
+                    <text x="100" y="195" font-size="12" fill="#333" text-anchor="middle">-</text>
+                    <text x="15" y="104" font-size="12" fill="#333" text-anchor="middle">-</text>
+                    <text x="185" y="104" font-size="12" fill="#333" text-anchor="middle">+</text>
+
+                    <!-- الفقاعة الخضراء (تتحرك في كل الاتجاهات) -->
+                    <circle id="bubble" cx="${x}" cy="${y}" r="15" class="bubble-circle" fill="${color}"/>
+                    <circle id="bubble-highlight" cx="${x-4}" cy="${y-4}" r="4" class="bubble-highlight"/>
+                </svg>
+            </div>`;
         }
 
-        // --- إنشاء القرص الدائري ---
-        function renderCircularGauge(angle, label = 'زاوية الميل') {
-            const max = 5; const clamped = Math.max(-max, Math.min(max, angle)); const radius = Math.abs(clamped) / max * 80; const x = 100 + (clamped >= 0 ? radius : -radius); const y = 100; const color = angleColor(angle);
-            return `<div class="gauge-container"><div style="text-align:center;font-weight:bold;margin-bottom:5px;">${label}</div><svg class="gauge-svg" viewBox="0 0 200 200" id="circular-gauge"><defs><radialGradient id="grad1" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#fff" /><stop offset="100%" stop-color="#e0e0e0" /></radialGradient></defs><circle cx="100" cy="100" r="95" fill="url(#grad1)" stroke="#333" stroke-width="4"/><circle cx="100" cy="100" r="80" fill="none" stroke="#eee" stroke-width="1"/><circle cx="100" cy="100" r="50" fill="none" stroke="#eee" stroke-width="1"/><line x1="100" y1="5" x2="100" y2="15" stroke="#333" stroke-width="3"/><line x1="100" y1="185" x2="100" y2="195" stroke="#333" stroke-width="3"/><line x1="5" y1="100" x2="15" y2="100" stroke="#333" stroke-width="3"/><line x1="185" y1="100" x2="195" y2="100" stroke="#333" stroke-width="3"/><line x1="25" y1="25" x2="35" y2="35" stroke="#666" stroke-width="2"/><line x1="175" y1="25" x2="165" y2="35" stroke="#666" stroke-width="2"/><line x1="25" y1="175" x2="35" y2="165" stroke="#666" stroke-width="2"/><line x1="175" y1="175" x2="165" y2="165" stroke="#666" stroke-width="2"/><text x="100" y="15" font-size="12" fill="#333" text-anchor="middle">+</text><text x="100" y="195" font-size="12" fill="#333" text-anchor="middle">-</text><text x="15" y="104" font-size="12" fill="#333" text-anchor="middle">-</text><text x="185" y="104" font-size="12" fill="#333" text-anchor="middle">+</text><circle id="circular-bubble" cx="${x}" cy="${y}" r="15" class="bubble-circle" fill="${color}" stroke="#2E7D32" stroke-width="3"/><circle id="circular-highlight" cx="${x-4}" cy="${y-4}" r="4" fill="#fff" opacity="0.7"/></svg></div>`;
+        // --- دالة تحديث حركة الفقاعة في القرص الدائري ---
+        function updateDynamicGauges() {
+            const bubble = document.getElementById('bubble');
+            const bubbleHighlight = document.getElementById('bubble-highlight');
+            
+            if (bubble) {
+                const { beta, gamma } = getDisplayAngle();
+                const max = 10; 
+                
+                // تحديث الإحداثيات (تماماً مثل دالة الرسم)
+                const x = 100 + (Math.max(-max, Math.min(max, gamma)) / max) * 80;
+                const y = 100 - (Math.max(-max, Math.min(max, beta)) / max) * 80;
+                
+                // اللون يعتمد على مقدار الميل الكلي
+                const totalAngle = Math.sqrt(beta*beta + gamma*gamma);
+                const color = angleColor(totalAngle);
+                
+                bubble.setAttribute('cx', x);
+                bubble.setAttribute('cy', y);
+                bubble.setAttribute('fill', color);
+                
+                if (bubbleHighlight) {
+                    bubbleHighlight.setAttribute('cx', x - 4);
+                    bubbleHighlight.setAttribute('cy', y - 4);
+                }
+
+                // تحديث النص الكبير
+                const bigAngle = document.querySelector('.angle-big');
+                if (bigAngle) {
+                    bigAngle.style.color = angleColor(beta);
+                    bigAngle.innerHTML = `${formatAngle(beta)}<span class="angle-deg">°</span>`;
+                }
+            }
         }
 
         // --- الرسم البياني ---
@@ -222,33 +300,25 @@
             return html;
         }
 
-        // --- تحديث الميزان المباشر ---
-        function updateDynamicGauges() {
-            const levelBubble = document.getElementById('level-bubble'); const levelHighlight = document.getElementById('level-highlight');
-            if (levelBubble) { const { beta } = getDisplayAngle(); const clamped = Math.max(-5, Math.min(5, beta)); const xPos = 50 + (clamped / 5) * 40; const color = angleColor(beta); levelBubble.setAttribute('cx', xPos); levelBubble.setAttribute('fill', color); if (levelHighlight) levelHighlight.setAttribute('cx', xPos - 4); }
-            const circularBubble = document.getElementById('circular-bubble'); const circularHighlight = document.getElementById('circular-highlight');
-            if (circularBubble) { const { beta } = getDisplayAngle(); const clamped = Math.max(-5, Math.min(5, beta)); const radius = Math.abs(clamped) / 5 * 80; const x = 100 + (clamped >= 0 ? radius : -radius); const y = 100; const color = angleColor(beta); circularBubble.setAttribute('cx', x); circularBubble.setAttribute('cy', y); circularBubble.setAttribute('fill', color); if (circularHighlight) { circularHighlight.setAttribute('cx', x - 4); circularHighlight.setAttribute('cy', y - 4); } }
-            const bigAngle = document.querySelector('.angle-big'); if (bigAngle) { const { beta } = getDisplayAngle(); bigAngle.style.color = angleColor(beta); bigAngle.innerHTML = `${formatAngle(beta)}<span class="angle-deg">°</span>`; }
-        }
-
         // --- عرض الخطوات ---
         function renderStep(index) {
             const step = steps[index]; if (!step) return;
             const total = steps.length - 1; progressText.textContent = `الخطوة ${index}/${total}`; progressFill.style.width = `${(index / total) * 100}%`; stepTitle.textContent = step.title;
             let html = `<div class="step-description">${step.desc}</div>`; if (step.visual) html += `<div class="visual-helper">${step.visual}</div>`;
             
-            if (step.id === 'ground') {
-                const { beta } = getDisplayAngle();
-                html += renderLevelBubble(beta, '📏 ميلان الأرض');
+            // استبدال الميزان الأفقي بالقرص الدائري في جميع الخطوات
+            if (step.showCircular || step.id === 'ground') {
+                const { beta, gamma } = getDisplayAngle();
+                html += renderCircularGauge(beta, gamma);
                 if (!sensorActive && !sensorError) { html += `<button class="action-btn btn-sensor" id="enable-sensor" style="margin-top:10px;">📱 تفعيل الحساسات</button>`; }
                 else if (sensorError) { html += `<div style="background:#FFE5E5;color:#c0392b;padding:10px;border-radius:10px;text-align:center;">الرجاء تفعيل الحساسات في إعدادات المتصفح ثم إعادة المحاولة</div>`; }
             }
 
-            if (step.showAngle && step.id !== 'ground') {
-                const { beta, gamma } = getDisplayAngle(); const color = angleColor(beta);
-                html += `<div class="angle-big" style="color:${color}">${formatAngle(beta)}<span class="angle-deg">°</span></div>`;
-                html += `<div class="sub-reading"><div class="sub-card"><div class="sub-label">📐 الميلان الجانبي</div><div class="sub-value value-beta">${formatAngle(beta)}</div></div><div class="sub-card"><div class="sub-label">📏 الميلان الأمامي</div><div class="sub-value value-gamma">${formatAngle(gamma)}</div></div></div>`;
-                if (['fr', 'fl', 'rr', 'rl'].includes(step.id)) { html += renderCircularGauge(beta, '🌐 القرص الدائري للعجلة'); }
+            // إضافة الأرقام التفصيلية للزوايا
+            if (step.id !== 'intro' && step.id !== 'report') {
+                const { beta, gamma } = getDisplayAngle();
+                html += `<div class="angle-big" style="color:${angleColor(beta)}">${formatAngle(beta)}<span class="angle-deg">°</span></div>`;
+                html += `<div class="sub-reading"><div class="sub-card"><div class="sub-label">📐 الميلان الأمامي/الخلفي (Beta)</div><div class="sub-value value-beta">${formatAngle(beta)}</div></div><div class="sub-card"><div class="sub-label">📏 الميلان الجانبي (Gamma)</div><div class="sub-value value-gamma">${formatAngle(gamma)}</div></div></div>`;
             }
 
             if (step.hasRecordButton) { const isRecorded = readings.ground !== null; html += `<div class="action-row"><button class="action-btn btn-record" id="record-btn">${isRecorded ? '✅ تم التسجيل' : '📝 تسجيل'}</button></div>`; }
