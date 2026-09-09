@@ -49,6 +49,7 @@
         .sub-card { background: var(--card-bg); border-radius: 10px; padding: 6px; text-align: center; box-shadow: 0 2px 8px var(--shadow-color); }
         .sub-label { font-size: 10px; color: var(--text-secondary); }
         .sub-value { font-size: 16px; font-weight: 700; }
+        .value-beta { color: #4FC3F7; } .value-gamma { color: #FFB74D; }
 
         .action-row { display: flex; gap: 10px; }
         .action-btn { padding: 10px; border-radius: 40px; border: none; font-weight: 700; font-size: 14px; cursor: pointer; flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; }
@@ -81,7 +82,6 @@
         }
         .nav-pulse { animation: pulseGreen 1.5s ease-in-out 2; }
 
-        /* تأثير الفلاش المضاف */
         @keyframes flashEffect { 0% { opacity: 0.3; } 100% { opacity: 1; } }
         .flash { animation: flashEffect 0.3s ease-in-out; }
 
@@ -131,7 +131,6 @@
         let sensorActive = false, sensorError = false;
         let wakeLock = null;
 
-        // دالة الفلاش البصري المفروضة لتصحيح الخطأ
         function flashElement(elementId) {
             const el = document.getElementById(elementId);
             if (el) {
@@ -197,10 +196,10 @@
             { id: 'intro', title: '📋 تعليمات', desc: 'اقرأ التعليمات ثم اضغط "بدء".', visual: `┌──────────────────┐\n│  🛠️  تجهيز      │\n│  🚗 أرض مستوية  │\n└──────────────────┘` },
             { id: 'ground', title: '🧭 الأرض', desc: 'ضع الهاتف على الأرض. اضغط تسجيل.', showCircular: true, hasRecordButton: true },
             { id: 'tare', title: '🎯 معايرة الصفر', desc: 'ضع الهاتف مسطحاً على أرضية السيارة.', showCircular: true, hasTareButton: true },
-            { id: 'fr', title: '🚗 الأمامية اليمنى (FR)', desc: 'ضع الهاتف عمودياً على الجنط.', showCircular: true, side: 'fr' },
-            { id: 'fl', title: '🚗 الأمامية اليسرى (FL)', desc: 'ضع الهاتف عمودياً على الجنط.', showCircular: true, side: 'fl' },
-            { id: 'rr', title: '🚙 الخلفية اليمنى (RR)', desc: 'ضع الهاتف على الجنط.', showCircular: true, side: 'rr' },
-            { id: 'rl', title: '🚙 الخلفية اليسرى (RL)', desc: 'ضع الهاتف على الجنط.', showCircular: true, side: 'rl' },
+            { id: 'fr', title: '🚗 الأمامية اليمنى (FR)', desc: 'ضع الهاتف عمودياً على الجنط واضغط تسجيل.', showCircular: true, side: 'fr' },
+            { id: 'fl', title: '🚗 الأمامية اليسرى (FL)', desc: 'ضع الهاتف عمودياً على الجنط واضغط تسجيل.', showCircular: true, side: 'fl' },
+            { id: 'rr', title: '🚙 الخلفية اليمنى (RR)', desc: 'ضع الهاتف على الجنط واضغط تسجيل.', showCircular: true, side: 'rr' },
+            { id: 'rl', title: '🚙 الخلفية اليسرى (RL)', desc: 'ضع الهاتف على الجنط واضغط تسجيل.', showCircular: true, side: 'rl' },
             { id: 'report', title: '📊 التقرير النهائي', desc: 'إليك ملخص القراءات.', isReport: true }
         ];
 
@@ -226,12 +225,19 @@
         });
 
         function getDisplayAngle() { return { beta: rawBeta - tareOffset.beta, gamma: rawGamma - tareOffset.gamma }; }
-        function angleColor(angle) { const abs = Math.abs(angle); return abs < 0.5 ? '#4FC3F7' : (abs < 1.5 ? '#10B981' : '#FF6B6B'); }
         function formatAngle(angle) { return angle === null ? '---' : `${angle >= 0 ? '+' : ''}${angle.toFixed(2)}°`; }
 
         function updateDynamicGauges() {
             const circleDegree = document.getElementById('circle-degree');
             if (circleDegree) circleDegree.textContent = formatAngle(getDisplayAngle().beta);
+        }
+
+        // دالة الملاحة للخطوة التالية
+        function goToNextStep() {
+            if (currentStep < steps.length - 1) {
+                currentStep++;
+                renderStep(currentStep);
+            }
         }
 
         function renderStep(index) {
@@ -242,32 +248,62 @@
             stepTitle.textContent = step.title;
 
             let html = `<div class="step-description">${step.desc}</div>`;
-            if (step.hasRecordButton) html += `<button class="action-btn btn-record" id="record-btn">📝 تسجيل</button>`;
+            if (step.hasRecordButton) html += `<button class="action-btn btn-record" id="record-btn">📝 تسجيل القراءة</button>`;
             if (step.hasTareButton) html += `<button class="action-btn btn-tare" id="tare-action-btn">🎯 معايرة الصفر</button>`;
+            
+            // إضافة زر التسجيل لعجلات السيارة
+            if (step.side) {
+                const recorded = readings[step.side] !== null;
+                html += `<button class="action-btn btn-record" id="record-wheel-btn">${recorded ? '✅ تم التسجيل (إعادة؟)' : '📝 تسجيل قراءة العجلة'}</button>`;
+            }
 
             stepContent.innerHTML = html;
 
             if (step.hasRecordButton) document.getElementById('record-btn').onclick = recordGround;
             if (step.hasTareButton) document.getElementById('tare-action-btn').onclick = performTare;
+            if (step.side) document.getElementById('record-wheel-btn').onclick = () => saveWheelReading(step.side);
             
             navBack.style.display = index === 0 ? 'none' : 'block';
         }
 
+        // تسجيل قراءة الأرض والانتقال التلقائي
         function recordGround() {
             readings.ground = getDisplayAngle().beta;
             playSound('good'); vibrate('good');
             flashElement('record-btn');
+            
+            // انتقال تلقائي بعد 800 ميلي ثانية
+            setTimeout(() => {
+                goToNextStep();
+            }, 800);
         }
 
+        // إجراء المعايرة والانتقال التلقائي
         function performTare() {
             tareOffset.beta = rawBeta; tareOffset.gamma = rawGamma; tareDone = true;
             playSound('good'); vibrate('good');
             flashElement('tare-action-btn');
+
+            // انتقال تلقائي بعد 800 ميلي ثانية
+            setTimeout(() => {
+                goToNextStep();
+            }, 800);
         }
 
-        navNext.addEventListener('click', () => {
-            if (currentStep < steps.length - 1) { currentStep++; renderStep(currentStep); }
-        });
+        // تسجيل قراءة العجلة والانتقال التلقائي
+        function saveWheelReading(side) {
+            const { beta } = getDisplayAngle();
+            readings[side] = beta;
+            playSound('good'); vibrate('good');
+            flashElement('record-wheel-btn');
+
+            // انتقال تلقائي بعد 800 ميلي ثانية
+            setTimeout(() => {
+                goToNextStep();
+            }, 800);
+        }
+
+        navNext.addEventListener('click', goToNextStep);
 
         navBack.addEventListener('click', () => {
             if (currentStep > 0) { currentStep--; renderStep(currentStep); }
