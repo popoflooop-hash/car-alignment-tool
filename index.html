@@ -216,7 +216,6 @@
         const navNext = document.getElementById('nav-next');
         const statusMsg = document.getElementById('status-msg');
         const themeToggle = document.getElementById('theme-toggle');
-        const customModal = document.getElementById('custom-modal');
 
         themeToggle.addEventListener('click', () => {
             const newTheme = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
@@ -225,14 +224,43 @@
         });
 
         function getDisplayAngle() { return { beta: rawBeta - tareOffset.beta, gamma: rawGamma - tareOffset.gamma }; }
+        function angleColor(angle) { const abs = Math.abs(angle); return abs < 0.5 ? '#4FC3F7' : (abs < 1.5 ? '#10B981' : '#FF6B6B'); }
         function formatAngle(angle) { return angle === null ? '---' : `${angle >= 0 ? '+' : ''}${angle.toFixed(2)}°`; }
 
-        function updateDynamicGauges() {
-            const circleDegree = document.getElementById('circle-degree');
-            if (circleDegree) circleDegree.textContent = formatAngle(getDisplayAngle().beta);
+        function renderCircularGauge(beta, gamma) {
+            const max = 10;
+            const x = 100 + (Math.max(-max, Math.min(max, gamma)) / max) * 60;
+            const y = 100 - (Math.max(-max, Math.min(max, beta)) / max) * 60;
+            
+            return `
+            <div class="gauge-container">
+                <div class="status-indicator good">✅</div>
+                <svg class="gauge-svg" viewBox="0 0 200 200">
+                    <circle cx="100" cy="100" r="95" fill="var(--card-bg)" stroke="#333" stroke-width="2"/>
+                    <circle cx="100" cy="100" r="70" fill="none" stroke="#ddd" stroke-width="1"/>
+                    <line x1="100" y1="15" x2="100" y2="185" stroke="#333" stroke-width="1"/>
+                    <line x1="15" y1="100" x2="185" y2="100" stroke="#333" stroke-width="1"/>
+                    <text id="circle-degree" x="100" y="85" class="circle-degree" text-anchor="middle">${formatAngle(beta)}</text>
+                    <text x="100" y="105" font-size="10" fill="#666" text-anchor="middle">درجة</text>
+                    <circle id="bubble" cx="${x}" cy="${y}" r="15" fill="#10B981"/>
+                </svg>
+            </div>`;
         }
 
-        // دالة الملاحة للخطوة التالية
+        function updateDynamicGauges() {
+            const { beta, gamma } = getDisplayAngle();
+            const circleDegree = document.getElementById('circle-degree');
+            const bubble = document.getElementById('bubble');
+            if (circleDegree) circleDegree.textContent = formatAngle(beta);
+            if (bubble) {
+                const max = 10;
+                const x = 100 + (Math.max(-max, Math.min(max, gamma)) / max) * 60;
+                const y = 100 - (Math.max(-max, Math.min(max, beta)) / max) * 60;
+                bubble.setAttribute('cx', x);
+                bubble.setAttribute('cy', y);
+            }
+        }
+
         function goToNextStep() {
             if (currentStep < steps.length - 1) {
                 currentStep++;
@@ -248,17 +276,34 @@
             stepTitle.textContent = step.title;
 
             let html = `<div class="step-description">${step.desc}</div>`;
+            
+            if (step.showCircular) {
+                const { beta, gamma } = getDisplayAngle();
+                html += renderCircularGauge(beta, gamma);
+                if (!sensorActive && !sensorError) html += `<button class="action-btn btn-sensor" id="enable-sensor">📱 تفعيل الحساسات</button>`;
+            }
+
             if (step.hasRecordButton) html += `<button class="action-btn btn-record" id="record-btn">📝 تسجيل القراءة</button>`;
             if (step.hasTareButton) html += `<button class="action-btn btn-tare" id="tare-action-btn">🎯 معايرة الصفر</button>`;
             
-            // إضافة زر التسجيل لعجلات السيارة
             if (step.side) {
                 const recorded = readings[step.side] !== null;
                 html += `<button class="action-btn btn-record" id="record-wheel-btn">${recorded ? '✅ تم التسجيل (إعادة؟)' : '📝 تسجيل قراءة العجلة'}</button>`;
             }
 
+            if (step.isReport) {
+                html += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px;">`;
+                ['fr', 'fl', 'rr', 'rl'].forEach(k => {
+                    const val = readings[k];
+                    html += `<div class="sub-card"><span>${k.toUpperCase()}</span><br><strong>${formatAngle(val)}</strong></div>`;
+                });
+                html += `</div>`;
+            }
+
             stepContent.innerHTML = html;
 
+            const sensorBtn = document.getElementById('enable-sensor');
+            if (sensorBtn) sensorBtn.onclick = enableSensors;
             if (step.hasRecordButton) document.getElementById('record-btn').onclick = recordGround;
             if (step.hasTareButton) document.getElementById('tare-action-btn').onclick = performTare;
             if (step.side) document.getElementById('record-wheel-btn').onclick = () => saveWheelReading(step.side);
@@ -266,45 +311,29 @@
             navBack.style.display = index === 0 ? 'none' : 'block';
         }
 
-        // تسجيل قراءة الأرض والانتقال التلقائي
         function recordGround() {
             readings.ground = getDisplayAngle().beta;
             playSound('good'); vibrate('good');
             flashElement('record-btn');
-            
-            // انتقال تلقائي بعد 800 ميلي ثانية
-            setTimeout(() => {
-                goToNextStep();
-            }, 800);
+            setTimeout(goToNextStep, 800);
         }
 
-        // إجراء المعايرة والانتقال التلقائي
         function performTare() {
             tareOffset.beta = rawBeta; tareOffset.gamma = rawGamma; tareDone = true;
             playSound('good'); vibrate('good');
             flashElement('tare-action-btn');
-
-            // انتقال تلقائي بعد 800 ميلي ثانية
-            setTimeout(() => {
-                goToNextStep();
-            }, 800);
+            setTimeout(goToNextStep, 800);
         }
 
-        // تسجيل قراءة العجلة والانتقال التلقائي
         function saveWheelReading(side) {
             const { beta } = getDisplayAngle();
             readings[side] = beta;
             playSound('good'); vibrate('good');
             flashElement('record-wheel-btn');
-
-            // انتقال تلقائي بعد 800 ميلي ثانية
-            setTimeout(() => {
-                goToNextStep();
-            }, 800);
+            setTimeout(goToNextStep, 800);
         }
 
         navNext.addEventListener('click', goToNextStep);
-
         navBack.addEventListener('click', () => {
             if (currentStep > 0) { currentStep--; renderStep(currentStep); }
         });
